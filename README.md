@@ -1,2 +1,3 @@
-# seda
-S.E.D.A
+# S.E.D.A
+
+Smart Elegant Driving Assistant
