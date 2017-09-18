@@ -17,6 +17,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    repositories {
+        flatDir {
+            dirs 'aars'
+        }
+        maven {
+            url 'https://maven.google.com'
+        }
+    }
 }
 
 dependencies {
@@ -27,4 +35,14 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
+
+    //compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support.constraint:constraint-layout-solver:1.0.2'
+
+    // Azure App Service
+    compile 'com.google.code.gson:gson:2.3'
+    compile 'com.google.guava:guava:18.0'
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
+    compile 'com.microsoft.azure:azure-mobile-android:3.2.0@aar'
+    compile 'com.microsoft.azure:azure-notifications-handler:1.0.1@jar'
 }

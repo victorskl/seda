@@ -8,4 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- from quickstart todoItem sample app -->
+    <style name="TodoAppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <!-- -->
+    </style>
 </resources>
