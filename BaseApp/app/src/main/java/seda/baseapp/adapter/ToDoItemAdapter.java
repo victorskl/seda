@@ -1,6 +1,7 @@
-package seda.baseapp.todo;
+package seda.baseapp.adapter;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,21 +10,36 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 
 import seda.baseapp.R;
+import seda.baseapp.fragment.ToDoFragment;
+import seda.baseapp.todo.ToDoActivity;
+import seda.baseapp.todo.ToDoItem;
 
 /**
  * Adapter to bind a ToDoItem List to a view
  */
-public class ToDoItemAdapter extends ArrayAdapter<ToDoItem> {
+public class ToDoItemAdapter extends ArrayAdapter<ToDoItem>
+{
 
     /**
      * Adapter context
      */
     Context mContext;
 
+
+
     /**
      * Adapter View layout
      */
     int mLayoutResourceId;
+
+    Fragment fragment = null;
+
+    public ToDoItemAdapter(Context context, Fragment fragment, int layoutResourceId) {
+        super(context, layoutResourceId);
+        this.fragment = fragment;
+        mContext = context;
+        mLayoutResourceId = layoutResourceId;
+    }
 
     public ToDoItemAdapter(Context context, int layoutResourceId) {
         super(context, layoutResourceId);
@@ -52,15 +68,23 @@ public class ToDoItemAdapter extends ArrayAdapter<ToDoItem> {
         checkBox.setChecked(false);
         checkBox.setEnabled(true);
 
-        checkBox.setOnClickListener(new View.OnClickListener() {
+        checkBox.setOnClickListener(new View.OnClickListener()
+        {
 
             @Override
-            public void onClick(View arg0) {
-                if (checkBox.isChecked()) {
+            public void onClick(View arg0)
+            {
+                if (checkBox.isChecked())
+                {
                     checkBox.setEnabled(false);
-                    if (mContext instanceof ToDoActivity) {
+                    if (mContext instanceof ToDoActivity)
+                    {
                         ToDoActivity activity = (ToDoActivity) mContext;
                         activity.checkItem(currentItem);
+                    }
+                    if (fragment instanceof ToDoFragment)
+                    {
+                        ((ToDoFragment) fragment).checkItem(currentItem);
                     }
                 }
             }

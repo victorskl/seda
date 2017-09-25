@@ -9,4 +9,13 @@
     <string name="menu_refresh">Refresh</string>
     <string name="checkbox_text">Item Text</string>
 
+    <!-- Navigation item-->
+    <string name="to_do_item">TodoItem</string>
+    <string name="about_us">AboutUs</string>
+
+    <string-array name="navigation_bar_item_names">
+        <item>@string/to_do_item</item>
+        <item>@string/about_us</item>
+    </string-array>
+
 </resources>
