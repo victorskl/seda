@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:weightSum="1">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/sedaTeamTextView"
+        android:text="S.E.D.A Team"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textSize="40sp"/>
+
+    <!--this prevent EditText to be editable-->
+    <!--android:inputType="none"-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="none"
+        android:text="Alan Chen"
+        android:id="@+id/alanchenTextView"
+        android:textSize="20sp"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bingfeng Liu"
+        android:id="@+id/bingfengTextView"
+        android:textSize="20sp"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="San Kho Lin"
+        android:id="@+id/sankholinTextView"
+        android:textSize="20sp"
+        android:gravity="center"/>
+</LinearLayout>

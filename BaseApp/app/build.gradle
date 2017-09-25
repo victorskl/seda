@@ -45,4 +45,6 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'com.microsoft.azure:azure-mobile-android:3.2.0@aar'
     compile 'com.microsoft.azure:azure-notifications-handler:1.0.1@jar'
+    compile "com.android.support:support-core-utils:26.0.0"
+    compile "com.android.support:support-v4:26.0.0"
 }
