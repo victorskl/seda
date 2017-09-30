@@ -40,4 +40,21 @@
         android:id="@+id/sankholinTextView"
         android:textSize="20sp"
         android:gravity="center"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="asServer"
+        android:id="@+id/asServerButton"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="asClient"
+        android:id="@+id/asClientButton"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Display Bluetooth Message here"
+        android:id="@+id/displayBluetoothTextView"/>
 </LinearLayout>
