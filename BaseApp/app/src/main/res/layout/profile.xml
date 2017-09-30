@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:weightSum="1">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="13dp"
+        >
+
+    </android.support.constraint.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/profile_image"
+        android:layout_width="match_parent"
+        android:layout_height="292dp"
+        app:srcCompat="@drawable/cat"
+        android:layout_weight="0.45"/>
+
+    <TextView
+        android:id="@+id/profile_infor_editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:text="Created Day: 2007\nCreated By: Bing\nProfile Rating:5 star\n"/>
+
+</LinearLayout>

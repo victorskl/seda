@@ -1,9 +1,14 @@
 package seda.baseapp;
 
 import android.Manifest;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+//import android.app.Fragment;
+//import android.app.FragmentManager;
+//import android.app.FragmentTransaction;
+
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
@@ -12,14 +17,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
+
 import android.support.v4.app.ActivityCompat;
+
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
+
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,19 +34,16 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
 import seda.baseapp.adapter.NavigationItemAdapter;
-import seda.baseapp.fragment.GeneralContentFragment;
+import seda.baseapp.fragment.AboutUsFragment;
+import seda.baseapp.fragment.DriverProfileFragment;
 import seda.baseapp.fragment.ToDoFragment;
-import seda.baseapp.todo.ToDoActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -129,14 +133,13 @@ public class MainActivity extends AppCompatActivity {
         // Set the list's click listener
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        GeneralContentFragment generalContentFragment = new GeneralContentFragment();
-        generalContentFragment.setLayoutId(R.layout.about_us);
+        AboutUsFragment aboutUsFragment = new AboutUsFragment();
 
         curFragmentName = getString(R.string.about_us);
 
-        fragmentTransaction.add(R.id.content_frame, generalContentFragment, getString(R.string.about_us));
+        fragmentTransaction.add(R.id.content_frame, aboutUsFragment, getString(R.string.about_us));
         fragmentTransaction.commit();
 
 //        need to request permission in code aswell for bluetooth?
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
     /** Swaps fragments in the main content view */
     private void selectItem(int position, String itemTagName) {
 
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
         //fragment replace will destroy the fragment
         //use hide instead
@@ -196,16 +199,25 @@ public class MainActivity extends AppCompatActivity {
         {
             ToDoFragment fragment = new ToDoFragment();
 
-            toggleFragment(fragmentManager, fragment, itemTagName, getString(R.string.to_do_item), position);
+            toggleFragment(fragmentManager, fragment, itemTagName, position);
 
         }
         else if (itemTagName.equals(getString(R.string.about_us)) && !itemTagName.equals(curFragmentName))
         {
-            GeneralContentFragment fragment = new GeneralContentFragment();
 
-            //set layout id
-            fragment.setLayoutId(R.layout.about_us);
-            toggleFragment(fragmentManager, fragment, itemTagName, getString(R.string.to_do_item), position);
+
+
+            AboutUsFragment fragment = new AboutUsFragment();
+            toggleFragment(fragmentManager, fragment, itemTagName, position);
+
+        }
+        else if (itemTagName.equals(getString(R.string.driver_profile)) && !itemTagName.equals(curFragmentName))
+        {
+
+            DriverProfileFragment fragment = new DriverProfileFragment();
+
+            toggleFragment(fragmentManager, fragment, itemTagName, position);
+
 
         }
 
@@ -215,17 +227,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void toggleFragment(FragmentManager fragmentManager, Fragment fragment, String curFragmentTagName, String startingFragmentName, int currentFragmentTagNameIndex)
+    public void toggleFragment(FragmentManager fragmentManager, Fragment fragment, String curClickedFragmentTagName, int currentFragmentTagNameIndex)
     {
         //start new fragment
-        if (fragmentManager.findFragmentByTag(curFragmentTagName) != null)
+        if (fragmentManager.findFragmentByTag(curClickedFragmentTagName) != null)
         {
-            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(curFragmentTagName)).commit();
+            fragmentManager.beginTransaction().show(fragmentManager.findFragmentByTag(curClickedFragmentTagName)).commit();
         }
         else
         {
             fragmentManager.beginTransaction()
-                    .add(R.id.content_frame, fragment, getString(R.string.to_do_item))
+                    .add(R.id.content_frame, fragment, curClickedFragmentTagName)
                     .commit();
         }
 

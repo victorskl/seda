@@ -12,4 +12,9 @@
     <style name="TodoAppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <!-- -->
     </style>
+    <!--need to disable action bar, to enable tool bar (like action bar)-->
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>
