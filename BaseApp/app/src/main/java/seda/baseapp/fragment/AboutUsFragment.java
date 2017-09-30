@@ -1,6 +1,6 @@
 package seda.baseapp.fragment;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,21 +15,19 @@ import seda.baseapp.R;
 /**
  * Created by liubingfeng on 24/09/2017.
  */
-public class GeneralContentFragment extends Fragment
+public class AboutUsFragment extends Fragment
 {
-    private int layoutId = 0;
-
-    public void setLayoutId(int layoutId)
-    {
-        this.layoutId = layoutId;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         /**
          * Inflate the layout for this fragment
          */
-        return inflater.inflate(layoutId, container, false);
+//        Log.d("test", "layoutId " + getArguments().getInt("layout"));
+//        return inflater.inflate(layoutId, container, false);
+        return inflater.inflate(R.layout.about_us, container, false);
+
+
     }
 
     @Override
@@ -39,12 +37,15 @@ public class GeneralContentFragment extends Fragment
 
 //        Button startBluetoothButton = (Button)getActivity().findViewById(R.id.startBluetoothButton);
 
-        Button asServerButton = (Button) getActivity().findViewById(R.id.asServerButton);
+        Button asServerButton = (Button)getActivity().findViewById(R.id.asServerButton);
 
 
-        Button asClientButton = (Button) getActivity().findViewById(R.id.asClientButton);
 
-        final TextView displayBluetoothTextView = (TextView) getActivity().findViewById(R.id.displayBluetoothTextView);
+        Button asClientButton = (Button)getActivity().findViewById(R.id.asClientButton);
+
+        final TextView displayBluetoothTextView = (TextView)getActivity().findViewById(R.id.displayBluetoothTextView);
+
+
 
 
         asServerButton.setOnClickListener(new View.OnClickListener()
@@ -53,7 +54,6 @@ public class GeneralContentFragment extends Fragment
             public void onClick(View v)
             {
                 Log.wtf("bingfengappservice", "server start");
-//                now message is diplayed with Toast, might use displayBluettothTextView later, but need to solve the thread and UI problem.
                 ((MainActivity) getActivity()).startServerThread(displayBluetoothTextView);
             }
         });
@@ -65,8 +65,13 @@ public class GeneralContentFragment extends Fragment
             {
                 Log.wtf("bingfengappservice", "client start");
 
-                ((MainActivity) getActivity()).startClientThread("YOGABOOK", displayBluetoothTextView);
+                ((MainActivity)getActivity()).startClientThread("SmartisanBing", displayBluetoothTextView);
             }
         });
+
+
+
+
+
     }
 }

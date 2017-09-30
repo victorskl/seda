@@ -12,10 +12,12 @@
     <!-- Navigation item-->
     <string name="to_do_item">TodoItem</string>
     <string name="about_us">AboutUs</string>
+    <string name="driver_profile">DriverProfile</string>
 
     <string-array name="navigation_bar_item_names">
         <item>@string/to_do_item</item>
         <item>@string/about_us</item>
+        <item>@string/driver_profile</item>
     </string-array>
 
 </resources>
