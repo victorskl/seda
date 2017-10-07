@@ -79,6 +79,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private long lastCarTooCloseAdvicePlayTime = System.currentTimeMillis();
     private int carTooCloseAdviceCount = 0;
 
+    private long prevLaneChangeTime = System.currentTimeMillis();
+
+    private static final int LANE_DETECTION_RGB = 1;
+    private static final int LANE_DETECTION_CANNY = 2;
 
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -250,14 +254,20 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 Imgproc.Canny(inputFrame.gray(), mIntermediateMat, 80, 100);
                 Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
                 break;
+
+            //performHeadCheck should not be here, go to onCreate
             case HEAD_CHECK:
                 performHeadCheck();
                 break;
             case LANE_DETECTION:
-                performLaneDetection();
+                mRgba = inputFrame.rgba();
+                mGray = inputFrame.gray();
+                performLaneDetection(LANE_DETECTION_RGB);
                 break;
             case LANE_DETECTION_CANNY:
-                performLaneDetectionCanny();
+                mRgba = inputFrame.rgba();
+                mGray = inputFrame.gray();
+                performLaneDetection(LANE_DETECTION_CANNY);
                 break;
             case CAR_DETECTION:
                 mRgba = inputFrame.rgba();
@@ -400,12 +410,45 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         Imgproc.line(mRgba, new Point(mRgba.width()/2, 0), new Point(mRgba.width()/2, mRgba.height()), new Scalar(255,0,0));
     }
 
-    private void performLaneDetectionCanny() {
+    private void performLaneDetection(int outputMode) {
+        Mat lines = new Mat();
 
-    }
+        //procedure: blur -> canny(edges) -> lines -> filter lines -> draw lines
+        Imgproc.GaussianBlur(mGray, mGray, new Size(11,11),0);
+        Imgproc.Canny(mGray, mIntermediateMat, 80, 100);
+        Imgproc.HoughLinesP(mIntermediateMat, lines, 1, Math.PI/180, 40, 30, 100);
+        int count = 0;
 
-    private void performLaneDetection() {
+        //decide output canny or normal
+        //If canny, convert the gray scaled mIntermediateMat to mrgba object
+        if(outputMode == LANE_DETECTION_CANNY) {
+            Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
+        }
 
+
+        //lines.rows() is the number of lines produced by houghlinesP
+        for (int i = 0; i < lines.rows(); i++) {
+
+            double[] val = lines.get(i, 0);
+            double dx = val[2] - val[0];
+            double dy = val[3] - val[1];
+            double angle = Math.atan2(dy, dx)*(180/Math.PI);
+
+            if((angle > 30 && angle < 45) || (angle > -45 && angle < -30)) {
+                count++;
+                Imgproc.line(mRgba, new Point(val[0], val[1]), new Point(val[2], val[3]), new Scalar(0, 0, 255), 2);
+            }
+        }
+
+        if (count < 4 && (System.currentTimeMillis() - prevLaneChangeTime) > 5000)
+        {
+
+            MediaPlayer mp=MediaPlayer.create(getApplicationContext(),R.raw.headcheck1);// the song is a filename which i have pasted inside a folder **raw** created under the **res** folder.//
+            mp.start();
+
+            prevLaneChangeTime = System.currentTimeMillis();
+
+        }
     }
 
     private void performHeadCheck() {
