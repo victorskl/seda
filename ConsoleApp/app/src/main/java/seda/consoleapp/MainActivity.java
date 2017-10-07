@@ -1,12 +1,14 @@
 package seda.consoleapp;
 
 import android.Manifest;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -25,11 +27,27 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
+import static org.opencv.core.Core.FONT_HERSHEY_TRIPLEX;
+
+//The car detection code is inspired from openCV face detection sample code
+//https://github.com/opencv/opencv/tree/master/samples/android/face-detection
+
+public class MainActivity extends Activity implements CvCameraViewListener2 {
 
     private static final String TAG = "MainActivity";
 
@@ -53,6 +71,16 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
     private CameraBridgeViewBase mOpenCvCameraView;
 
+    private File mCascadeFile;
+    private CascadeClassifier mJavaDetector;
+    private float mRelativeFaceSize = 0.2f;
+    private int mAbsoluteFaceSize = 0;
+    private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
+    private long lastCarTooCloseAdvicePlayTime = System.currentTimeMillis();
+    private int carTooCloseAdviceCount = 0;
+
+
+
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -72,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         }
     };
 
-    // Create a BroadcastReceiver for ACTION_FOUND.
+//     Create a BroadcastReceiver for ACTION_FOUND.
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -199,6 +227,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         mRgba = new Mat(height, width, CvType.CV_8UC4);
         mIntermediateMat = new Mat(height, width, CvType.CV_8UC4);
         mGray = new Mat(height, width, CvType.CV_8UC1);
+
+
     }
 
     public void onCameraViewStopped() {
@@ -230,6 +260,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                 performLaneDetectionCanny();
                 break;
             case CAR_DETECTION:
+                mRgba = inputFrame.rgba();
+                mGray = inputFrame.gray();
                 performCarDetection();
                 break;
         }
@@ -260,6 +292,44 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     // initialize Haar Cascade
     private void initCascadeTrainingData() {
 
+        try
+        {
+
+            // load cascade file from application resources
+//                        car2 seemed to be more accurated -> does not detect squares
+            InputStream is = getResources().openRawResource(R.raw.cars2);
+            File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+            mCascadeFile = new File(cascadeDir, "car.xml");
+            FileOutputStream os = new FileOutputStream(mCascadeFile);
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1)
+            {
+                os.write(buffer, 0, bytesRead);
+            }
+            is.close();
+            os.close();
+
+            mJavaDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+            if (mJavaDetector.empty())
+            {
+                Log.e(TAG, "Failed to load cascade classifier");
+                mJavaDetector = null;
+            } else
+                Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
+
+            cascadeDir.delete();
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -267,6 +337,67 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
     private void performCarDetection() {
 
+
+        if (mAbsoluteFaceSize == 0) {
+            int height = mGray.rows();
+            if (Math.round(height * mRelativeFaceSize) > 0) {
+                mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize);
+            }
+        }
+
+        MatOfRect faces = new MatOfRect();
+
+
+        if (mJavaDetector != null)
+        {
+            mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+                    new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
+        }
+        else
+        {
+            Log.e(TAG, "Detection method is not selected!");
+        }
+
+
+//        could have many detections
+        Rect[] facesArray = faces.toArray();
+
+
+        for (int i = 0; i < facesArray.length; i++)
+        {
+            Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
+            int distance = (int) Math.round((0.0397*2)/((facesArray[i].width)*0.00002));
+
+            if (distance < 20)
+            {
+                //            Log.d("rect box", "" facesArray[i].width);
+                Imgproc.putText(mRgba, ""+ distance +"m" + " " + facesArray[i].x + ", " + facesArray[i].y, new Point(facesArray[i].x,facesArray[i].y),
+                        FONT_HERSHEY_TRIPLEX, 5.0 ,new Scalar(0,0,255));
+
+
+//                if half of the bottom right line of the detecting box is on the right side of the road. Play audio
+//                this is used to eliminate the car driving from the opposite direction
+//                facesArray[i].br() -> bottom right coner of the detecting box
+//                depending on the rule left or right driving.
+//                Log.d("sound", "" + (facesArray[i].br().x- facesArray[i].width/2)+ ", " + mRgba.width()/2);
+                if(System.currentTimeMillis() - lastCarTooCloseAdvicePlayTime > 10000 && (facesArray[i].br().x- facesArray[i].width/2) >= mRgba.width()/2)
+                {
+
+                    playCarCloseAudio();
+                    lastCarTooCloseAdvicePlayTime = System.currentTimeMillis();
+                    carTooCloseAdviceCount += 1;
+                }
+            }
+            else
+            {
+                //            Log.d("rect box", "" facesArray[i].width);
+                Imgproc.putText(mRgba, ""+ distance +"m", new Point(facesArray[i].x,facesArray[i].y),
+                        FONT_HERSHEY_TRIPLEX, 5.0 ,new  Scalar(255,0,0));
+            }
+
+
+        }
+        Imgproc.line(mRgba, new Point(mRgba.width()/2, 0), new Point(mRgba.width()/2, mRgba.height()), new Scalar(255,0,0));
     }
 
     private void performLaneDetectionCanny() {
@@ -311,6 +442,23 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             } else {
                 Log.wtf(TAG, "dic request bluetooth failed -> result code -> " + requestCode);
             }
+        }
+    }
+
+//  This playing audio code is inspired from
+//
+// https://stackoverflow.com/questions/7291731/how-to-play-audio-file-in-android
+
+    public void playCarCloseAudio(){
+        //set up MediaPlayer
+        MediaPlayer mp;
+
+        try {
+
+            mp=MediaPlayer.create(getApplicationContext(),R.raw.close_car);
+            mp.start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
