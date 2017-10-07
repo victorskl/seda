@@ -1,11 +1,21 @@
 package seda.consoleapp;
 
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -17,9 +27,17 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.HashMap;
+
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
 
     private static final String TAG = "MainActivity";
+
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothDevice bluetoothDevice;
+    private HashMap<String, BluetoothDevice> bluetoothDeviceHashMap = new HashMap<>();
+    private String bluetoothServerDeviceName = "SmartisanBing";
+    private AsyncTask<Void, Void, Void> startBluetoothConnection;
 
     private ViewMode mViewMode = ViewMode.RGBA;
     private Mat mRgba;
@@ -54,17 +72,6 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         }
     };
 
-
-
-
-    private BluetoothAdapter bluetoothAdapter;
-    private BluetoothDevice bluetoothDevice;
-    private HashMap<String, BluetoothDevice> bluetoothDeviceHashMap = new HashMap<String, BluetoothDevice>();
-    private String bluetoothServerDeviceName = "SmartisanBing";
-    private AsyncTask<Void, Void, Void> startBluetoothConnection;
-    
-    public static final String TAG = "SEDA";
-
     // Create a BroadcastReceiver for ACTION_FOUND.
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -82,19 +89,16 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                 Log.wtf(TAG, " deviceName " + deviceName);
 
                 bluetoothDeviceHashMap.put(deviceName, bluetoothDevice);
-                runOnUiThread(new Runnable()
-                {
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         Toast.makeText(getApplicationContext(), "Found -> " + deviceName, Toast.LENGTH_LONG).show();
                     }
                 });
 
 
 //              found server device, start connecting to server, assume once found server is already up
-                if (deviceName != null && deviceName.equalsIgnoreCase(bluetoothServerDeviceName))
-                {
+                if (deviceName != null && deviceName.equalsIgnoreCase(bluetoothServerDeviceName)) {
                     Log.d(TAG, "start bluetooth connection");
                     startBluetoothConnection = new BluetoothConnectionAsync((AppCompatActivity) context, bluetoothAdapter, bluetoothDeviceHashMap.get(bluetoothServerDeviceName));
                     startBluetoothConnection.execute();
@@ -118,8 +122,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.main_activity_surface_view);
         mOpenCvCameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
-      
-      
+
+
 //        Bluetooth setting up
 //        Permission requesting code
         int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 2;
@@ -150,9 +154,6 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         // Register for broadcasts when a device is discovered.
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter);
-
-    }
-      
     }
 
     @Override
@@ -241,20 +242,15 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
         if (item == mItemPreviewRGBA) {
             mViewMode = ViewMode.RGBA;
-        }
-        else if (item == mItemPreviewCanny) {
+        } else if (item == mItemPreviewCanny) {
             mViewMode = ViewMode.CANNY;
-        }
-        else if (item == mItemHeadCheck) {
+        } else if (item == mItemHeadCheck) {
             mViewMode = ViewMode.HEAD_CHECK;
-        }
-        else if (item == mItemLaneDetection) {
+        } else if (item == mItemLaneDetection) {
             mViewMode = ViewMode.LANE_DETECTION;
-        }
-        else if (item == mItemLaneDetectionCanny) {
+        } else if (item == mItemLaneDetectionCanny) {
             mViewMode = ViewMode.LANE_DETECTION_CANNY;
-        }
-        else if (item == mItemCarDetection) {
+        } else if (item == mItemCarDetection) {
             mViewMode = ViewMode.CAR_DETECTION;
         }
 
@@ -282,37 +278,29 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     }
 
     private void performHeadCheck() {
-      
+
     }
 
 
-//    All the request of requsting system will come to this callback
-
+    //    All the request of requsting system will come to this callback
     //    listen for registered message
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // means request bluetooth successfully
-        if (requestCode == 0)
-        {
-            if (resultCode == RESULT_OK)
-            {
+        if (requestCode == 0) {
+            if (resultCode == RESULT_OK) {
                 Log.wtf(TAG, "request bluetooth successfully");
-            }
-            else
-            {
+            } else {
                 Log.wtf(TAG, "request bluetooth failed");
             }
         }
 
-        if (requestCode == 1)
-        {
+        if (requestCode == 1) {
 
             //if dicoverable failed it will return cancel
             //seemed that you need to make sure bluetooth is opened then start discoverying other devices
             //otherwise, the dicovery process wont start.
-            if (resultCode != RESULT_CANCELED)
-            {
+            if (resultCode != RESULT_CANCELED) {
                 if (bluetoothAdapter.isDiscovering()) {
                     bluetoothAdapter.cancelDiscovery();
                 }
@@ -320,13 +308,9 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                 bluetoothAdapter.startDiscovery();
 
                 Log.wtf(TAG, "dic request bluetooth successfully -> result code -> " + resultCode);
-            }
-            else
-            {
+            } else {
                 Log.wtf(TAG, "dic request bluetooth failed -> result code -> " + requestCode);
             }
-
         }
-  
-  
+    }
 }

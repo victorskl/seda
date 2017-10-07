@@ -3,7 +3,6 @@ package seda.consoleapp;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -15,14 +14,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.UUID;
 
-import static seda.consoleapp.MainActivity.TAG;
-
 /**
  * Created by liubingfeng on 7/10/2017.
  */
 
-public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void>
-{
+public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void> {
+
+    private static final String TAG = "BluetoothConnectionAsync";
+
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothSocket mmSocket;
     private BluetoothDevice mmDevice;
@@ -33,11 +32,10 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void>
     private Thread sendThread;
     private Thread readThread;
 
-    String aString="OUR_SECRET";
+    String aString = "OUR_SECRET";
     UUID resultUUID = UUID.nameUUIDFromBytes(aString.getBytes());
 
-    BluetoothConnectionAsync(AppCompatActivity activity, BluetoothAdapter bluetoothAdapter, BluetoothDevice device)
-    {
+    BluetoothConnectionAsync(AppCompatActivity activity, BluetoothAdapter bluetoothAdapter, BluetoothDevice device) {
         this.activity = activity;
         this.bluetoothAdapter = bluetoothAdapter;
         this.device = device;
@@ -46,8 +44,7 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void>
 
 
     @Override
-    protected Void doInBackground(Void... voids)
-    {
+    protected Void doInBackground(Void... voids) {
 
         try {
             // Get a BluetoothSocket to connect with the given BluetoothDevice.
@@ -67,12 +64,10 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void>
         return null;
     }
 
-    protected void sendData(String sendString)
-    {
+    protected void sendData(String sendString) {
 
 
     }
-
 
 
 }
