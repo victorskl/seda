@@ -43,6 +43,7 @@ import java.util.UUID;
 import seda.baseapp.adapter.NavigationItemAdapter;
 import seda.baseapp.fragment.AboutUsFragment;
 import seda.baseapp.fragment.DriverProfileFragment;
+import seda.baseapp.fragment.SedaStatusFragment;
 import seda.baseapp.fragment.ToDoFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -174,7 +175,6 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter);
 
-
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -218,6 +218,14 @@ public class MainActivity extends AppCompatActivity {
 
             toggleFragment(fragmentManager, fragment, itemTagName, position);
 
+
+        }
+        else if (itemTagName.equals(getString(R.string.seda_status)) && !itemTagName.equals(curFragmentName))
+        {
+
+            SedaStatusFragment fragment = new SedaStatusFragment();
+
+            toggleFragment(fragmentManager, fragment, itemTagName, position);
 
         }
 
@@ -499,6 +507,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+//    should add this to console app too
     @Override
     protected void onDestroy() {
         super.onDestroy();

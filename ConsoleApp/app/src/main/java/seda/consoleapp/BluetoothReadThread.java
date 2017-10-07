@@ -46,6 +46,7 @@ public class BluetoothReadThread extends Thread {
 
             } catch (IOException e) {
                 e.printStackTrace();
+                break;
             }
         }
 

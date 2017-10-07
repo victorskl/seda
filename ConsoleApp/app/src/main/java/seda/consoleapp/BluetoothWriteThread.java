@@ -55,6 +55,7 @@ public class BluetoothWriteThread extends Thread {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+                break;
             }
         }
     }

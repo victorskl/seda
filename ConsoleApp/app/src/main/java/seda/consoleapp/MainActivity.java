@@ -237,7 +237,12 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     public void onDestroy() {
         super.onDestroy();
         if (mOpenCvCameraView != null)
+        {
             mOpenCvCameraView.disableView();
+        }
+
+        // Don't forget to unregister the ACTION_FOUND receiver.
+        unregisterReceiver(mReceiver);
     }
 
     // OpenCV
@@ -537,4 +542,5 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
             e.printStackTrace();
         }
     }
+
 }
