@@ -20,6 +20,7 @@ public class BluetoothReadRunnable implements Runnable
     private static final String TAG  = "BluetoothReadRunnable";
     private BufferedReader in;
     private AppCompatActivity activity;
+    private boolean runGuard = true;
 
 
 
@@ -35,7 +36,7 @@ public class BluetoothReadRunnable implements Runnable
     public void run()
     {
         String msg = null;
-        while (true)
+        while (runGuard)
         {
             try
             {
@@ -50,7 +51,8 @@ public class BluetoothReadRunnable implements Runnable
                         Toast.makeText(activity.getApplicationContext(), "From Client -> " + finalMsg, Toast.LENGTH_LONG).show();
                     }
                 });
-            } catch (Exception e)
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
                 break;

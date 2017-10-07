@@ -20,6 +20,7 @@ public class BluetoothWriteRunnable implements Runnable
     private LinkedBlockingDeque<String> sendMsgDeque = new LinkedBlockingDeque<>();
     private BufferedWriter out;
     private AppCompatActivity activity;
+    private  boolean runGuard = true;
 
 
     BluetoothWriteRunnable(BufferedWriter out, AppCompatActivity activity)
@@ -37,7 +38,7 @@ public class BluetoothWriteRunnable implements Runnable
     public void run()
     {
         String msg = null;
-        while (true)
+        while (runGuard)
         {
             try
             {
@@ -58,5 +59,10 @@ public class BluetoothWriteRunnable implements Runnable
 
         }
 
+    }
+
+    public void setRunGuard(boolean runGuard)
+    {
+        this.runGuard = runGuard;
     }
 }

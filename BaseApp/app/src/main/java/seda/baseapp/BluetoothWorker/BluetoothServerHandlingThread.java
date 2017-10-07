@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 public class BluetoothServerHandlingThread extends Thread
 {
 
-    private  static final String TAG = "BluetoothServerHandlingThread";
+    private  static final String TAG = "BluetoothServerHandling";
     private  String name = "server1";
 
     private String aString="OUR_SECRET";
@@ -69,17 +69,24 @@ public class BluetoothServerHandlingThread extends Thread
     public void run()
     {
 
+        Future<?> f;
         while (true)
         {
 
-            try {
+            try
+            {
+                Log.wtf(TAG, "Accepting client");
+
                 clientSocket = mmServerSocket.accept();
-            } catch (IOException e) {
-                Log.wtf("bingfengappserver", "Socket's accept() method failed", e);
+            }
+            catch (IOException e)
+            {
+                Log.wtf(TAG, "Socket's accept() method failed", e);
                 break;
             }
 
-            if (clientSocket != null) {
+            if (clientSocket != null)
+            {
                 // A connection was accepted. Perform work associated with
                 // the connection in a separate thread.
 //                    manageMyConnectedSocket(socket);
@@ -88,54 +95,71 @@ public class BluetoothServerHandlingThread extends Thread
 //                        echo server
                     out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
                     in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    String inputLine = null;
-                    while (true)
-                    {
-                        out.write("" + System.currentTimeMillis() + "\n");
-                        out.flush();
-                        inputLine = in.readLine();
-                        Log.wtf("bingfengappservice", "From Client -> " + inputLine);
-//                            displayBluetoothTextView.setText(inputLine);
 
-//                            this code is ugly will refactor it later. just want to show msg on the UI
-                        final String finalInputLine = inputLine;
-                        activity.runOnUiThread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                Toast.makeText(activity.getApplicationContext(), "From Client -> " + finalInputLine, Toast.LENGTH_LONG).show();
-                            }
-                        });
-
-                        Thread.sleep(1000);
-
-                    }
                 } catch (Exception e)
                 {
                     e.printStackTrace();
                 }
-                finally
+                curReadRunnable = new BluetoothReadRunnable(in, activity);
+                curWriteRunnable = new BluetoothWriteRunnable(out, activity);
+
+//                  Inspired from: https://stackoverflow.com/questions/33845405/how-to-check-if-all-tasks-running-on-executorservice-are-completed
+
+                f = fixedThreadPool.submit(curReadRunnable);
+
+                taskFutures.add(f);
+
+                f = fixedThreadPool.submit(curWriteRunnable);
+
+                taskFutures.add(f);
+
+                while (true)
                 {
+                    for (Future<?> future : taskFutures)
+                    {
+                        if (future.isDone() || future.isCancelled())
+                        {
+                            Log.d(TAG, "Future done ~= Either read or write runnable failed, start new server");
+
+                            try
+                            {
+                                cleanUp();
+                                mmServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(name, resultUUID);
+
+                            } catch (IOException e)
+                            {
+                                Log.d(TAG, "Fail to clean up");
+                                e.printStackTrace();
+                            }
+
+                            break;
+                        }
+                    }
                     try
                     {
-                        mmServerSocket.close();
-                    } catch (IOException e)
+                        Thread.sleep(100);
+                    } catch (Exception e)
                     {
-                        e.printStackTrace();
+                        Log.d(TAG, "Server handling thread sleep failed");
                     }
                 }
-                break;
+
             }
 
-
         }
-
-
-
     }
 
+    private void cleanUp() throws IOException
+    {
+        mmServerSocket.close();
+        taskFutures.clear();
+        in.close();
+        out.close();
+        in = null;
+        out = null;
+        curReadRunnable = null;
+        curWriteRunnable.addSendMessageQueue("close");
+        curWriteRunnable = null;
 
-
-
+    }
 }

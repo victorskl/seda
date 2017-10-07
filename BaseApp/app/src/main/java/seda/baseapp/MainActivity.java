@@ -507,6 +507,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+//    should add this to console app too
     @Override
     protected void onDestroy() {
         super.onDestroy();
