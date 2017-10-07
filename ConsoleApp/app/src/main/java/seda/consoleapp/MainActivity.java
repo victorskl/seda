@@ -8,6 +8,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -80,9 +84,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private int carTooCloseAdviceCount = 0;
 
     private long prevLaneChangeTime = System.currentTimeMillis();
+    private long prevHeadCheckTime = System.currentTimeMillis();
 
     private static final int LANE_DETECTION_RGB = 1;
     private static final int LANE_DETECTION_CANNY = 2;
+    private SensorManager sensorManager;
+    private Sensor gyroscopeSensor;
+    private SensorEventListener gyroscopeEventLisetner;
 
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -186,6 +194,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         // Register for broadcasts when a device is discovered.
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter);
+
+        //monitoring headcheck via gyroscope
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        gyroscopeSensor =sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        performHeadCheck();
     }
 
     @Override
@@ -205,6 +218,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         super.onPause();
         if (mOpenCvCameraView != null)
             mOpenCvCameraView.disableView();
+        sensorManager.unregisterListener(gyroscopeEventLisetner);
     }
 
     @Override
@@ -217,6 +231,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
             Log.d(TAG, "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
+        sensorManager.registerListener(gyroscopeEventLisetner, gyroscopeSensor,SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     public void onDestroy() {
@@ -253,11 +268,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 mRgba = inputFrame.rgba();
                 Imgproc.Canny(inputFrame.gray(), mIntermediateMat, 80, 100);
                 Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
-                break;
-
-            //performHeadCheck should not be here, go to onCreate
-            case HEAD_CHECK:
-                performHeadCheck();
                 break;
             case LANE_DETECTION:
                 mRgba = inputFrame.rgba();
@@ -452,6 +462,29 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     }
 
     private void performHeadCheck() {
+        gyroscopeEventLisetner = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+
+                if ((sensorEvent.values[0]>0.8f) || (sensorEvent.values[0]<-0.8f)) {
+                    if ((System.currentTimeMillis() - prevHeadCheckTime) > 8000)
+                    {
+
+                        MediaPlayer mp=MediaPlayer.create(getApplicationContext(),R.raw.headcheck2);// the song is a filename which i have pasted inside a folder **raw** created under the **res** folder.//
+                        mp.start();
+
+                        prevHeadCheckTime = System.currentTimeMillis();
+
+                    }
+
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int i) {
+
+            }
+        };
 
     }
 
