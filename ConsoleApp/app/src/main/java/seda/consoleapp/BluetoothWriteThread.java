@@ -1,7 +1,6 @@
 package seda.consoleapp;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -31,7 +30,7 @@ public class BluetoothWriteThread extends Thread {
     }
 
     public void addSendMessageToQueue(String message) {
-        sendQueue.add(JSONDataFactory.getProfileJSON().toString() + "\n");
+        sendQueue.add(message + "\n");
     }
 
 
