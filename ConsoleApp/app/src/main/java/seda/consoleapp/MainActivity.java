@@ -203,7 +203,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
     /**
      * Used to init MainActivity when it is created
-     * @param savedInstanceState Unused.
+     * @param savedInstanceState
      * @return void
      */
     @Override
@@ -231,7 +231,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
      * For example turning bluetooth on and ask necessary permission for using bluetooth.
      * @return void
      */
-
     private void initBluetooth() {
 
         ActivityCompat.requestPermissions(this,

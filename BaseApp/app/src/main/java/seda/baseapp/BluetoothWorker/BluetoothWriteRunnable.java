@@ -1,3 +1,10 @@
+/**
+ *
+ * BluetoothWriteRunnable is used to manage the data writing to the client socket
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.baseapp.BluetoothWorker;
 
 import android.os.Build;
@@ -9,10 +16,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.LinkedBlockingDeque;
-
-/**
- * Created by liubingfeng on 8/10/2017.
- */
 
 public class BluetoothWriteRunnable implements Runnable
 {
@@ -30,11 +33,21 @@ public class BluetoothWriteRunnable implements Runnable
         addSendMessageQueue("Hello From Server");
     }
 
+    /**
+     * This method is responsible of adding ready to send data to the blocking queue
+     * @param msg is the JSON data string (Sample) from the server
+     * @return void
+     */
     public void addSendMessageQueue(String msg)
     {
         sendMsgDeque.add(msg + "\n");
     }
 
+    /**
+     * This run method will keep taking message for sent from the blocking queue and send it to
+     * client side.
+     * @return void
+     */
     @Override
     public void run()
     {
@@ -62,6 +75,11 @@ public class BluetoothWriteRunnable implements Runnable
 
     }
 
+    /**
+     * This method is used to set the runGuard
+     * @param runGuard is used to controling the loop of the run method
+     * @return void
+     */
     public void setRunGuard(boolean runGuard)
     {
         this.runGuard = runGuard;

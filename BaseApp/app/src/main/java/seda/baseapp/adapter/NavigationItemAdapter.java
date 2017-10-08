@@ -1,4 +1,10 @@
-
+/**
+ *
+ * NavigationItemAdapter manages the slide bar option elements.
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.baseapp.adapter;
 
 import android.app.Activity;

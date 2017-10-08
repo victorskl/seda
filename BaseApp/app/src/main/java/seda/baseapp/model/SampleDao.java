@@ -1,3 +1,12 @@
+/**
+ *
+ * This class is used to manage the Azure database e.g. making query and retriving data.
+ *
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
+
 package seda.baseapp.model;
 
 import android.app.Activity;
@@ -53,19 +62,38 @@ public class SampleDao {
         }
     }
 
+
+    /**
+     * This is used to update the row of Sample table
+     * @param item
+     * @return void
+     */
     public void checkItemInTable(Sample item) throws ExecutionException, InterruptedException {
         mSampleTable.update(item).get();
     }
 
+    /**
+     * This is used to add the row of Sample table
+     * @param item
+     * @return void
+     */
     public Sample addItemInTable(Sample item) throws ExecutionException, InterruptedException {
         Sample entity = mSampleTable.insert(item).get();
         return entity;
     }
 
+    /**
+     * This is used to retrive the row of Sample table
+     * @return List<Sample> is all rows from the Sample Table
+     */
     private List<Sample> refreshItemsFromMobileServiceTable() throws ExecutionException, InterruptedException {
         return mSampleTable.select("*").execute().get();
     }
 
+    /**
+     * This is used to retrive the row of Sample table and update the PublicProfile view.
+     * @return void
+     */
     public void refreshItemsFromTable() {
 
         // Get the items that weren't marked as completed and add them in the

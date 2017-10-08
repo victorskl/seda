@@ -1,3 +1,14 @@
+/**
+ *
+ * MainActivity is initially set to the AboutUs page (home page).
+ *
+ * This UI used the multiple fragments model instead of multiple activities.
+ *
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
+
 package seda.baseapp;
 
 import android.Manifest;
@@ -51,9 +62,13 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //    }
 
+//  Side sliding bars options' name
     private String[] navigationItemsNames = null;
+//  Used to draw the side bar
     private DrawerLayout drawerLayout = null;
     private ListView drawerList = null;
+
+//  The name of current fragment
     private String curFragmentName = "";
 
     private BluetoothAdapter bluetoothAdapter;
@@ -61,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothDevice bluetoothDevice;
     private HashMap<String, BluetoothDevice> bluetoothDeviceHashMap = new HashMap<String, BluetoothDevice>();
 
+//  Used to handle the server socket for allowing client to connect
     private BluetoothServerHandlingThread serverThread;
 
     private int discoverableRequestCode = 1;
@@ -68,12 +84,15 @@ public class MainActivity extends AppCompatActivity {
 //  discoverableDuration is in seconds
     private int discoverableDuration = 1000;
 
+
+//  The azure database manager
     private SampleDao sampleDao;
 
     private AboutUsFragment aboutUsFragment = null;
     private DriverProfileFragment driverProfileFragment = null;
     private PublicProfileFragment publicProfileFragment = null;
 
+//  Blocking queue used to hold the data queried from the azure cloud service
     public LinkedBlockingDeque<List<Sample>> sampleConcurrentLinkedDeque = new LinkedBlockingDeque<>();
 
 
@@ -107,7 +126,12 @@ public class MainActivity extends AppCompatActivity {
 //    };
 
 
-    /** Called when the activity is first created. */
+    /**
+     * Initializing Db, bluetooth setting, set initial fragment to AboutUs page and start up server
+     * listening socket.
+     * @param savedInstanceState
+     * @return void
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,9 +170,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.add(R.id.content_frame, aboutUsFragment, getString(R.string.about_us));
         fragmentTransaction.commit();
 
-//        need to request permission in code aswell for bluetooth?
-
-////        request code
+//      need to request permission (coarse location) for bluetooth in run time as well.
         int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 2;
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
@@ -156,19 +178,19 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//        blue tooth https://www.tutorialspoint.com/android/android_bluetooth.htm
+//      bluetooth https://www.tutorialspoint.com/android/android_bluetooth.htm
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothAdapter.enable();
 
-//        these two line ask request for blue tooth
+//      these two line ask request for blue tooth
         Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 //
 //        // 0-> request code
         startActivityForResult(turnOn, turnOnBluetoothCode);
 
 
-//         make this device discoverable in 300s
+//      make this device discoverable in X seconds
         Intent discoverableIntent =
                 new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 //        discoverable forever
@@ -186,16 +208,23 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    /**
+     * Class used to implement listener for each side bar options
+     */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            //position is a index value, which refers to the element in mPlanetTitles
             selectItem(position, (String)view.getTag());
             Log.d("bingappservice", "navigation item clicked, position: " + position + ", tag: " +view.getTag());
         }
     }
 
-    /** Swaps fragments in the main content view */
+    /**
+     * Used to swap fragments in the main content view
+     * @param position of the option name in the options' name array
+     * @param itemTagName is the current touched side bar option's name
+     * @return void
+     */
     private void selectItem(int position, String itemTagName) {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -248,6 +277,13 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.closeDrawer(drawerList);
 
     }
+
+
+    /**
+     * Used to update the tables in PublicProfileFragment after quering the azure db
+     * @param sampleList of all the Sample data stored in Azure Cloud
+     * @return void
+     */
     public void updatePublicProfileFragmentAdapter(List<Sample> sampleList)
     {
         if(publicProfileFragment != null)
@@ -256,6 +292,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Used to add Fragment or show the previous hidden one to save mobile device resource.
+     * @param fragmentManager used to manipulate fragments in this activity
+     * @param fragment current fragment need to be shown or added
+     * @param curClickedFragmentTagName is current fragment's name
+     * @param currentFragmentTagNameIndex is the index in fragment (menu option) names' array
+     * @return void
+     */
     public void toggleFragment(FragmentManager fragmentManager, Fragment fragment, String curClickedFragmentTagName, int currentFragmentTagNameIndex)
     {
         //start new fragment
@@ -280,6 +324,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Showing the green light (blink) to indicate client is connect or not
+     * @param isShow indicates whether to show the green light (blink)
+     * @return void
+     */
     public void showConnectionAnimation(boolean isShow)
     {
         if (aboutUsFragment != null)
@@ -288,8 +337,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-//    listen for registered message
+    /**
+     * Used to response to the request sent to Android system
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     * @return void
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -315,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode != RESULT_CANCELED)
             {
 
-
+//              Starting the server socket handling thread.
                 serverThread = new BluetoothServerHandlingThread(bluetoothAdapter, this, sampleDao);
                 serverThread.start();
 
@@ -543,6 +597,10 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 //    should add this to console app too
+    /**
+     * Used to clean up when activity is destroyed
+     * @return void
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();

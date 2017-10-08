@@ -1,3 +1,11 @@
+/**
+ *
+ * PublicProfileFragment is used to present the data query from the Azure cloud database.
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
+
 package seda.baseapp.fragment;
 
 import android.os.Bundle;
@@ -16,10 +24,6 @@ import seda.baseapp.R;
 import seda.baseapp.adapter.LstViewAdapter;
 import seda.baseapp.model.Sample;
 import seda.baseapp.model.SampleDao;
-
-/**
- * Created by alanc on 8/10/2017.
- */
 
 public class PublicProfileFragment extends Fragment {
 
@@ -67,6 +71,12 @@ public class PublicProfileFragment extends Fragment {
 //        lstview.setAdapter(adapter);
     }
 
+    /**
+     * This is the method used to update the data table once the newest data is retrived from
+     * the Azure Cloud database.
+     * @param sampleList is the rows from Sample table.
+     * @return void
+     */
     public void addItemToAdapter(List<Sample> sampleList)
     {
         String itemString[] = new String[sampleList.size()];

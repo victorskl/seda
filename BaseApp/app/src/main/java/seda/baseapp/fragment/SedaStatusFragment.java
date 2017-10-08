@@ -1,3 +1,10 @@
+/**
+ *
+ * SedaStatusFragment used to show SEDA device status page, but now it is integrated in About us page.
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.baseapp.fragment;
 
 import android.graphics.drawable.AnimationDrawable;
@@ -14,12 +21,14 @@ import android.widget.TextView;
 import seda.baseapp.MainActivity;
 import seda.baseapp.R;
 
-/**
- * Created by liubingfeng on 24/09/2017.
- */
+
 public class SedaStatusFragment extends Fragment
 {
 
+    /**
+     * This is the method used to inflate the view.
+     * @return void
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         /**
@@ -32,6 +41,10 @@ public class SedaStatusFragment extends Fragment
 
     }
 
+    /**
+     * This is the method used to set up the animation of SEDA devision (green light blinking)
+     * @return void
+     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {

@@ -1,3 +1,10 @@
+/**
+ *
+ * LstViewAdapter manages the row elements in the PublicProfileFragment
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.baseapp.adapter;
 
 import android.content.Context;
@@ -11,9 +18,6 @@ import java.util.ArrayList;
 
 import seda.baseapp.R;
 
-/**
- * Created by alanc on 8/10/2017.
- */
 
 public class LstViewAdapter extends ArrayAdapter<String> {
     int groupid;

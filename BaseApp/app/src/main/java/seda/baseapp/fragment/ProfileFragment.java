@@ -1,3 +1,10 @@
+/**
+ *
+ * ProfileFragment used to show single driver profile page in DriverProfile fragment (sliding page)
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.baseapp.fragment;
 
 import android.os.Bundle;
@@ -8,9 +15,6 @@ import android.view.ViewGroup;
 
 import seda.baseapp.R;
 
-/**
- * Created by liubingfeng on 30/09/2017.
- */
 
 public class ProfileFragment extends Fragment
 {

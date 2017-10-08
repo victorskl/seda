@@ -1,3 +1,14 @@
+/**
+ *
+ * BluetoothServerHandlingThread manages the Bluetooth lisening socket.
+ * Since bluetooth server socket is not reusable and is usually accepting one connection,
+ * this thread is managing the server listening socket restart and re-set up the read write
+ * thread to manage the client's connection.
+ * The read write threads are runnable tasks submit to the thread pool for memory efficiency.
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.baseapp.BluetoothWorker;
 
 import android.bluetooth.BluetoothAdapter;
@@ -20,10 +31,6 @@ import java.util.concurrent.Future;
 
 import seda.baseapp.MainActivity;
 import seda.baseapp.model.SampleDao;
-
-/**
- * Created by liubingfeng on 8/10/2017.
- */
 
 public class BluetoothServerHandlingThread extends Thread
 {
@@ -74,6 +81,13 @@ public class BluetoothServerHandlingThread extends Thread
     }
 
 
+    /**
+     * This run method will not stop and it will keep re-setting the server listening socket,
+     * once the client socket is broken.
+     * It also manage the creation of the read write thread for the input and output data on client
+     * socket.
+     * @return void
+     */
     @Override
     public void run()
     {
@@ -148,6 +162,8 @@ public class BluetoothServerHandlingThread extends Thread
                             Log.wtf(TAG, "Future done ~= Either read or write runnable failed, start new server");
                             try
                             {
+//                              If found client's socket is closed or broken, clean up the old client's socket resource
+//                              Starting a new server listening socket.
                                 cleanUp();
                                 mmServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(name, resultUUID);
                                 isInOutThreadAlive = false;
@@ -176,6 +192,11 @@ public class BluetoothServerHandlingThread extends Thread
         }
     }
 
+    /**
+     * This used to clean up the broken client socket's relavent resources for the new server
+     * listening socket to operate and wait for new client to come.
+     * @return void
+     */
     private void cleanUp() throws IOException
     {
         mmServerSocket.close();

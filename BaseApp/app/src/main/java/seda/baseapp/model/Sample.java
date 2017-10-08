@@ -1,3 +1,11 @@
+/**
+ *
+ * Sample is used to store the sample data from Azure database on the cloud
+ *
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.baseapp.model;
 
 public class Sample {

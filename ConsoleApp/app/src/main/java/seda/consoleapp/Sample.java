@@ -2,7 +2,6 @@
  *
  * Sample is used to store the sample data in different view mode.
  *
- * The car training xml files are from https://github.com/ramitix/Car_lane_sign_detection
  * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
  * @version 1.0
  * @since   2017-09-15

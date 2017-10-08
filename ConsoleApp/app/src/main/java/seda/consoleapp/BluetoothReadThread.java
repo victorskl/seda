@@ -36,7 +36,6 @@ public class BluetoothReadThread extends Thread {
      * This is run method will listen the message from server and show it on Toast.
      * @return void
      */
-
     @Override
     public void run() {
         String inputLine = null;

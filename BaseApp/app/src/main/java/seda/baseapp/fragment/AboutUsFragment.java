@@ -1,3 +1,10 @@
+/**
+ *
+ * AboutUsFragment shows SEDA team's information and SEDA device status (green light blinking)
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.baseapp.fragment;
 
 import android.graphics.drawable.AnimationDrawable;
@@ -14,9 +21,6 @@ import android.widget.TextView;
 import seda.baseapp.MainActivity;
 import seda.baseapp.R;
 
-/**
- * Created by liubingfeng on 24/09/2017.
- */
 public class AboutUsFragment extends Fragment
 {
 
@@ -35,6 +39,11 @@ public class AboutUsFragment extends Fragment
 
     }
 
+    /**
+     * This is the method used to toggle green light animation
+     * @param isShow indicates whether to show the green light.
+     * @return void
+     */
     public void setAnimation(boolean isShow)
     {
 
@@ -112,10 +121,5 @@ public class AboutUsFragment extends Fragment
 //                ((MainActivity)getActivity()).startClientThread("SmartisanBing", displayBluetoothTextView);
 //            }
 //        });
-
-
-
-
-
     }
 }

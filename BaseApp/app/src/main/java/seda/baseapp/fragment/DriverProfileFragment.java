@@ -1,3 +1,11 @@
+/**
+ *
+ * DriverProfileFragment hosts many profile page in sliding window.
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
+
 package seda.baseapp.fragment;
 
 import android.os.Bundle;
@@ -69,6 +77,10 @@ public class DriverProfileFragment extends Fragment
     //    Tabs
 
 
+    /**
+     * This is the method used to added initial pages.
+     * @return void
+     */
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getActivity().getSupportFragmentManager());
 
@@ -87,6 +99,9 @@ public class DriverProfileFragment extends Fragment
         viewPager.setAdapter(adapter);
     }
 
+    /**
+     * ViewPagerAdapter is used in DriverProfileFragment as sliding elements adpater
+     */
     class ViewPagerAdapter extends FragmentPagerAdapter
     {
         private final List<Fragment> mFragmentList = new ArrayList<>();

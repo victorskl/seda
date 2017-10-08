@@ -1,3 +1,10 @@
+/**
+ *
+ * BluetoothReadRunnable is used to manage the data reading from client socket
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.baseapp.BluetoothWorker;
 
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +35,12 @@ public class BluetoothReadRunnable implements Runnable {
         this.activity = activity;
     }
 
+    /**
+     * This method is responsible of deserializing the JSON string and send the data to the
+     * cloud for storing and processing.
+     * @param msg is the JSON data string (Sample) from the client
+     * @return void
+     */
     private void addSampleDataToDB(String msg) {
         try {
             JSONObject jsonObject = new JSONObject(msg);
@@ -66,6 +79,12 @@ public class BluetoothReadRunnable implements Runnable {
         }
     }
 
+
+
+    /**
+     * This run method listening the data sent from the client.
+     * @return void
+     */
     @Override
     public void run() {
         String msg = null;
