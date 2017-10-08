@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import seda.baseapp.MainActivity;
 import seda.baseapp.model.SampleDao;
 
 /**
@@ -84,8 +85,11 @@ public class BluetoothServerHandlingThread extends Thread
             try
             {
                 Log.wtf(TAG, "Accepting client");
+                ((MainActivity)activity).showConnectionAnimation(false);
                 clientSocket = mmServerSocket.accept();
                 isInOutThreadAlive = true;
+                ((MainActivity)activity).showConnectionAnimation(true);
+
                 Log.wtf(TAG, "Accepted one client");
 
             }

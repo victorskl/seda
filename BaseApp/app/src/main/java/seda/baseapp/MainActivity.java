@@ -23,6 +23,7 @@ import seda.baseapp.BluetoothWorker.BluetoothServerHandlingThread;
 import seda.baseapp.adapter.NavigationItemAdapter;
 import seda.baseapp.fragment.AboutUsFragment;
 import seda.baseapp.fragment.DriverProfileFragment;
+import seda.baseapp.fragment.ProfileFragment;
 import seda.baseapp.fragment.SedaStatusFragment;
 import seda.baseapp.fragment.ToDoFragment;
 import seda.baseapp.model.SampleDao;
@@ -69,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
     private int discoverableDuration = 1000;
 
     private SampleDao sampleDao;
+
+    private AboutUsFragment aboutUsFragment = null;
+    private DriverProfileFragment driverProfileFragment = null;
 
 
     // Create a BroadcastReceiver for ACTION_FOUND.
@@ -132,7 +136,8 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        AboutUsFragment aboutUsFragment = new AboutUsFragment();
+
+        aboutUsFragment = new AboutUsFragment();
 
         curFragmentName = getString(R.string.about_us);
 
@@ -206,9 +211,13 @@ public class MainActivity extends AppCompatActivity {
         {
 
 
+            if (aboutUsFragment == null)
+            {
+                aboutUsFragment = new AboutUsFragment();
+            }
 
             AboutUsFragment fragment = new AboutUsFragment();
-            toggleFragment(fragmentManager, fragment, itemTagName, position);
+            toggleFragment(fragmentManager, aboutUsFragment, itemTagName, position);
 
         }
         else if (itemTagName.equals(getString(R.string.driver_profile)) && !itemTagName.equals(curFragmentName))
@@ -257,6 +266,14 @@ public class MainActivity extends AppCompatActivity {
 
         curFragmentName = navigationItemsNames[currentFragmentTagNameIndex];
 
+    }
+
+    public void showConnectionAnimation(boolean isShow)
+    {
+        if (aboutUsFragment != null)
+        {
+            aboutUsFragment.setAnimation(isShow);
+        }
     }
 
 
