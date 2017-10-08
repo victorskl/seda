@@ -29,12 +29,15 @@ public class LstViewAdapter extends ArrayAdapter<String> {
     }
     // Hold views of the ListView to improve its scrolling performance
     static class ViewHolder {
-        public TextView textname;
-        public TextView textprice;
+        public TextView textid;
+        public TextView textstarttime;
+//        public TextView textduration;
+        public TextView textsocre;
 
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
+
 
         View rowView = convertView;
         // Inflate the rowlayout.xml file if convertView is null
@@ -42,16 +45,20 @@ public class LstViewAdapter extends ArrayAdapter<String> {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             rowView= inflater.inflate(groupid, parent, false);
             ViewHolder viewHolder = new ViewHolder();
-            viewHolder.textname= (TextView) rowView.findViewById(R.id.txtname);
-            viewHolder.textprice= (TextView) rowView.findViewById(R.id.txtprice);
+            viewHolder.textid= (TextView) rowView.findViewById(R.id.txtid);
+            viewHolder.textstarttime= (TextView) rowView.findViewById(R.id.txtstarttime);
+//            viewHolder.textduration= (TextView) rowView.findViewById(R.id.txtduration);
+            viewHolder.textsocre=  (TextView) rowView.findViewById(R.id.txtscore);
             rowView.setTag(viewHolder);
 
         }
         // Set text to each TextView of ListView item
         String[] items=item_list[position].split("__");
         ViewHolder holder = (ViewHolder) rowView.getTag();
-        holder.textname.setText(items[0]);
-        holder.textprice.setText(items[1]);
+        holder.textid.setText(items[0]);
+        holder.textstarttime.setText(items[1]);
+//        holder.textduration.setText(items[2]);
+        holder.textsocre.setText(items[2]);
         return rowView;
     }
 

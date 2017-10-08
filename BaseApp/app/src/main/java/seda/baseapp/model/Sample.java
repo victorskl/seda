@@ -86,7 +86,15 @@ public class Sample {
 
     @Override
     public String toString() {
-        return getText();
+        return "Sample{" +
+                "mText='" + mText + '\'' +
+                ", mId='" + mId + '\'' +
+                ", mComplete=" + mComplete +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", sampleType=" + sampleType +
+                ", count=" + count +
+                '}';
     }
 
     @Override
