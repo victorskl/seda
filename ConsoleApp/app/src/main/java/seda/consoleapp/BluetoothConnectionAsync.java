@@ -39,14 +39,15 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void> {
         this.activity = activity;
         this.bluetoothAdapter = bluetoothAdapter;
         this.device = device;
-
     }
-
 
     @Override
     protected Void doInBackground(Void... voids) {
 
         try {
+            // Cancel discovery because it otherwise slows down the connection.
+            bluetoothAdapter.cancelDiscovery();
+
             // Get a BluetoothSocket to connect with the given BluetoothDevice.
             // MY_UUID is the app's UUID string, also used in the server code.
             mmSocket = device.createRfcommSocketToServiceRecord(resultUUID);
@@ -66,8 +67,5 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void> {
 
     protected void sendData(String sendString) {
 
-
     }
-
-
 }

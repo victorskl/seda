@@ -54,6 +54,7 @@ import static org.opencv.core.Core.FONT_HERSHEY_TRIPLEX;
 public class MainActivity extends Activity implements CvCameraViewListener2 {
 
     private static final String TAG = "MainActivity";
+    private static final int REQUEST_ENABLE_BT = 1;
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
@@ -112,7 +113,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         }
     };
 
-//     Create a BroadcastReceiver for ACTION_FOUND.
+    //     Create a BroadcastReceiver for ACTION_FOUND.
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -143,6 +144,15 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                     startBluetoothConnection = new BluetoothConnectionAsync((AppCompatActivity) context, bluetoothAdapter, bluetoothDeviceHashMap.get(bluetoothServerDeviceName));
                     startBluetoothConnection.execute();
 
+                }
+
+                // TODO to handle specific SEDA Bluetooth Server
+                else {
+                    if (deviceName != null) {
+                        Log.wtf(TAG, "onReceive: found but not SEDA Bluetooth Server: " + deviceName);
+                    }
+                    Log.wtf(TAG, "onReceive: cancel Bluetooth Server discovery as SEDA Server not found");
+                    bluetoothAdapter.cancelDiscovery();
                 }
 
                 String deviceHardwareAddress = bluetoothDevice.getAddress(); // MAC address
@@ -178,18 +188,22 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-//      these two line ask request for blue tooth
-        Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        int turnOnBluetoothRequestCode = 0;
-        startActivityForResult(turnOn, turnOnBluetoothRequestCode);
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            //int turnOnBluetoothRequestCode = 0;
+            //startActivityForResult(turnOn, turnOnBluetoothRequestCode);
+            startActivityForResult(turnOn, REQUEST_ENABLE_BT);
+        }
 
-
+        //TODO to discuss with Bing;
+        // if ConsoleApp is BT client, we can let user
+        // turn on discoverable. check the Android BT doc
 //         make this device discoverable in 300s
-        Intent discoverableIntent =
-                new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-
-        startActivityForResult(discoverableIntent, 1);
+//        Intent discoverableIntent =
+//                new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+//        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+//        startActivity(discoverableIntent);
+//        //startActivityForResult(discoverableIntent, 1);
 
         // Register for broadcasts when a device is discovered.
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -198,7 +212,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         //monitoring headcheck via gyroscope
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         gyroscopeSensor =sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        performHeadCheck();
     }
 
     @Override
@@ -231,13 +244,12 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
             Log.d(TAG, "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
-        sensorManager.registerListener(gyroscopeEventLisetner, gyroscopeSensor,SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(gyroscopeEventLisetner, gyroscopeSensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     public void onDestroy() {
         super.onDestroy();
-        if (mOpenCvCameraView != null)
-        {
+        if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
         }
 
@@ -289,6 +301,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 mGray = inputFrame.gray();
                 performCarDetection();
                 break;
+            case HEAD_CHECK:
+                mRgba = inputFrame.rgba();
+                break;
         }
 
         return mRgba;
@@ -296,6 +311,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
+        sensorManager.unregisterListener(gyroscopeEventLisetner);
 
         if (item == mItemPreviewRGBA) {
             mViewMode = ViewMode.RGBA;
@@ -303,6 +319,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
             mViewMode = ViewMode.CANNY;
         } else if (item == mItemHeadCheck) {
             mViewMode = ViewMode.HEAD_CHECK;
+            initHeadCheck();
+            sensorManager.registerListener(gyroscopeEventLisetner, gyroscopeSensor, SensorManager.SENSOR_DELAY_FASTEST);
         } else if (item == mItemLaneDetection) {
             mViewMode = ViewMode.LANE_DETECTION;
         } else if (item == mItemLaneDetectionCanny) {
@@ -317,8 +335,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     // initialize Haar Cascade
     private void initCascadeTrainingData() {
 
-        try
-        {
+        try {
 
             // load cascade file from application resources
 //                        car2 seemed to be more accurated -> does not detect squares
@@ -329,29 +346,23 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
             byte[] buffer = new byte[4096];
             int bytesRead;
-            while ((bytesRead = is.read(buffer)) != -1)
-            {
+            while ((bytesRead = is.read(buffer)) != -1) {
                 os.write(buffer, 0, bytesRead);
             }
             is.close();
             os.close();
 
             mJavaDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
-            if (mJavaDetector.empty())
-            {
+            if (mJavaDetector.empty()) {
                 Log.e(TAG, "Failed to load cascade classifier");
                 mJavaDetector = null;
             } else
                 Log.i(TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
 
             cascadeDir.delete();
-        }
-        catch (FileNotFoundException e)
-        {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -373,13 +384,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         MatOfRect faces = new MatOfRect();
 
 
-        if (mJavaDetector != null)
-        {
+        if (mJavaDetector != null) {
             mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
                     new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
-        }
-        else
-        {
+        } else {
             Log.e(TAG, "Detection method is not selected!");
         }
 
@@ -388,16 +396,14 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         Rect[] facesArray = faces.toArray();
 
 
-        for (int i = 0; i < facesArray.length; i++)
-        {
+        for (int i = 0; i < facesArray.length; i++) {
             Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
-            int distance = (int) Math.round((0.0397*2)/((facesArray[i].width)*0.00002));
+            int distance = (int) Math.round((0.0397 * 2) / ((facesArray[i].width) * 0.00002));
 
-            if (distance < 20)
-            {
+            if (distance < 20) {
                 //            Log.d("rect box", "" facesArray[i].width);
-                Imgproc.putText(mRgba, ""+ distance +"m" + " " + facesArray[i].x + ", " + facesArray[i].y, new Point(facesArray[i].x,facesArray[i].y),
-                        FONT_HERSHEY_TRIPLEX, 5.0 ,new Scalar(0,0,255));
+                Imgproc.putText(mRgba, "" + distance + "m" + " " + facesArray[i].x + ", " + facesArray[i].y, new Point(facesArray[i].x, facesArray[i].y),
+                        FONT_HERSHEY_TRIPLEX, 5.0, new Scalar(0, 0, 255));
 
 
 //                if half of the bottom right line of the detecting box is on the right side of the road. Play audio
@@ -405,38 +411,35 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //                facesArray[i].br() -> bottom right coner of the detecting box
 //                depending on the rule left or right driving.
 //                Log.d("sound", "" + (facesArray[i].br().x- facesArray[i].width/2)+ ", " + mRgba.width()/2);
-                if(System.currentTimeMillis() - lastCarTooCloseAdvicePlayTime > 10000 && (facesArray[i].br().x- facesArray[i].width/2) >= mRgba.width()/2)
-                {
+                if (System.currentTimeMillis() - lastCarTooCloseAdvicePlayTime > 10000 && (facesArray[i].br().x - facesArray[i].width / 2) >= mRgba.width() / 2) {
 
                     playCarCloseAudio();
                     lastCarTooCloseAdvicePlayTime = System.currentTimeMillis();
                     carTooCloseAdviceCount += 1;
                 }
-            }
-            else
-            {
+            } else {
                 //            Log.d("rect box", "" facesArray[i].width);
-                Imgproc.putText(mRgba, ""+ distance +"m", new Point(facesArray[i].x,facesArray[i].y),
-                        FONT_HERSHEY_TRIPLEX, 5.0 ,new  Scalar(255,0,0));
+                Imgproc.putText(mRgba, "" + distance + "m", new Point(facesArray[i].x, facesArray[i].y),
+                        FONT_HERSHEY_TRIPLEX, 5.0, new Scalar(255, 0, 0));
             }
 
 
         }
-        Imgproc.line(mRgba, new Point(mRgba.width()/2, 0), new Point(mRgba.width()/2, mRgba.height()), new Scalar(255,0,0));
+        Imgproc.line(mRgba, new Point(mRgba.width() / 2, 0), new Point(mRgba.width() / 2, mRgba.height()), new Scalar(255, 0, 0));
     }
 
     private void performLaneDetection(int outputMode) {
         Mat lines = new Mat();
 
         //procedure: blur -> canny(edges) -> lines -> filter lines -> draw lines
-        Imgproc.GaussianBlur(mGray, mGray, new Size(11,11),0);
+        Imgproc.GaussianBlur(mGray, mGray, new Size(11, 11), 0);
         Imgproc.Canny(mGray, mIntermediateMat, 80, 100);
-        Imgproc.HoughLinesP(mIntermediateMat, lines, 1, Math.PI/180, 40, 30, 100);
+        Imgproc.HoughLinesP(mIntermediateMat, lines, 1, Math.PI / 180, 40, 30, 100);
         int count = 0;
 
         //decide output canny or normal
         //If canny, convert the gray scaled mIntermediateMat to mrgba object
-        if(outputMode == LANE_DETECTION_CANNY) {
+        if (outputMode == LANE_DETECTION_CANNY) {
             Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
         }
 
@@ -447,18 +450,17 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
             double[] val = lines.get(i, 0);
             double dx = val[2] - val[0];
             double dy = val[3] - val[1];
-            double angle = Math.atan2(dy, dx)*(180/Math.PI);
+            double angle = Math.atan2(dy, dx) * (180 / Math.PI);
 
-            if((angle > 30 && angle < 45) || (angle > -45 && angle < -30)) {
+            if ((angle > 30 && angle < 45) || (angle > -45 && angle < -30)) {
                 count++;
                 Imgproc.line(mRgba, new Point(val[0], val[1]), new Point(val[2], val[3]), new Scalar(0, 0, 255), 2);
             }
         }
 
-        if (count < 4 && (System.currentTimeMillis() - prevLaneChangeTime) > 5000)
-        {
+        if (count < 4 && (System.currentTimeMillis() - prevLaneChangeTime) > 5000) {
 
-            MediaPlayer mp=MediaPlayer.create(getApplicationContext(),R.raw.headcheck1);// the song is a filename which i have pasted inside a folder **raw** created under the **res** folder.//
+            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.headcheck1);// the song is a filename which i have pasted inside a folder **raw** created under the **res** folder.//
             mp.start();
 
             prevLaneChangeTime = System.currentTimeMillis();
@@ -466,16 +468,17 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         }
     }
 
-    private void performHeadCheck() {
+    private void initHeadCheck() {
+        if (gyroscopeEventLisetner != null) return;
+
         gyroscopeEventLisetner = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
 
-                if ((sensorEvent.values[0]>0.8f) || (sensorEvent.values[0]<-0.8f)) {
-                    if ((System.currentTimeMillis() - prevHeadCheckTime) > 8000)
-                    {
+                if ((sensorEvent.values[0] > 0.8f) || (sensorEvent.values[0] < -0.8f)) {
+                    if ((System.currentTimeMillis() - prevHeadCheckTime) > 8000) {
 
-                        MediaPlayer mp=MediaPlayer.create(getApplicationContext(),R.raw.headcheck2);// the song is a filename which i have pasted inside a folder **raw** created under the **res** folder.//
+                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.headcheck2);// the song is a filename which i have pasted inside a folder **raw** created under the **res** folder.//
                         mp.start();
 
                         prevHeadCheckTime = System.currentTimeMillis();
@@ -530,13 +533,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //
 // https://stackoverflow.com/questions/7291731/how-to-play-audio-file-in-android
 
-    public void playCarCloseAudio(){
+    public void playCarCloseAudio() {
         //set up MediaPlayer
         MediaPlayer mp;
 
         try {
 
-            mp=MediaPlayer.create(getApplicationContext(),R.raw.close_car);
+            mp = MediaPlayer.create(getApplicationContext(), R.raw.close_car);
             mp.start();
         } catch (Exception e) {
             e.printStackTrace();
