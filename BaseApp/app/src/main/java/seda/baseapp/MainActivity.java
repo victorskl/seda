@@ -17,13 +17,17 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import seda.baseapp.BluetoothWorker.BluetoothServerHandlingThread;
 import seda.baseapp.adapter.NavigationItemAdapter;
 import seda.baseapp.fragment.AboutUsFragment;
 import seda.baseapp.fragment.DriverProfileFragment;
 import seda.baseapp.fragment.SedaStatusFragment;
+import seda.baseapp.model.Sample;
 import seda.baseapp.model.SampleDao;
 import seda.baseapp.fragment.PublicProfileFragment;
 
@@ -68,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
 
     private AboutUsFragment aboutUsFragment = null;
     private DriverProfileFragment driverProfileFragment = null;
+    private PublicProfileFragment publicProfileFragment = null;
+
+    public LinkedBlockingDeque<List<Sample>> sampleConcurrentLinkedDeque = new LinkedBlockingDeque<>();
 
 
     // Create a BroadcastReceiver for ACTION_FOUND.
@@ -228,9 +235,11 @@ public class MainActivity extends AppCompatActivity {
         else if (itemTagName.equals(getString(R.string.public_profile)) && !itemTagName.equals(curFragmentName))
         {
 
-            PublicProfileFragment fragment = new PublicProfileFragment();
-
-            toggleFragment(fragmentManager, fragment, itemTagName, position);
+            if(publicProfileFragment == null)
+            {
+                publicProfileFragment = new PublicProfileFragment();
+            }
+            toggleFragment(fragmentManager, publicProfileFragment, itemTagName, position);
 
         }
 
@@ -238,6 +247,13 @@ public class MainActivity extends AppCompatActivity {
 //        setTitle(navigationItemsNames[position]);
         drawerLayout.closeDrawer(drawerList);
 
+    }
+    public void updatePublicProfileFragmentAdapter(List<Sample> sampleList)
+    {
+        if(publicProfileFragment != null)
+        {
+            publicProfileFragment.addItemToAdapter(sampleList);
+        }
     }
 
     public void toggleFragment(FragmentManager fragmentManager, Fragment fragment, String curClickedFragmentTagName, int currentFragmentTagNameIndex)
