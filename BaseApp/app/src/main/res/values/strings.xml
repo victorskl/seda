@@ -16,10 +16,12 @@
     <string name="seda_status">SEDAstatus</string>
 
     <string-array name="navigation_bar_item_names">
-        <item>@string/to_do_item</item>
+        <!--<item>@string/to_do_item</item>-->
         <item>@string/about_us</item>
         <item>@string/driver_profile</item>
-        <item>@string/seda_status</item>
+        <!--<item>@string/seda_status</item>-->
     </string-array>
+
+
 
 </resources>
