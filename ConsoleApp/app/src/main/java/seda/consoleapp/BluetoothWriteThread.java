@@ -30,7 +30,7 @@ public class BluetoothWriteThread extends Thread {
     }
 
     public void addSendMessageToQueue(String message) {
-        sendQueue.add(JSONdataFactory.getProfileJSON().toString() + "\n");
+        sendQueue.add(JSONDataFactory.getProfileJSON().toString() + "\n");
     }
 
 
