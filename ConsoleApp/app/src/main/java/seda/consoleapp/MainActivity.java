@@ -85,7 +85,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private int mAbsoluteFaceSize = 0;
     private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
     private long lastCarTooCloseAdvicePlayTime = System.currentTimeMillis();
-    private int carTooCloseAdviceCount = 0;
 
     private long prevLaneChangeTime = System.currentTimeMillis();
     private long prevHeadCheckTime = System.currentTimeMillis();
@@ -476,7 +475,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
                     playCarCloseAudio();
                     lastCarTooCloseAdvicePlayTime = System.currentTimeMillis();
-                    carTooCloseAdviceCount += 1;
+                    tmp_count += 1;
                 }
             } else {
                 //            Log.d("rect box", "" facesArray[i].width);
