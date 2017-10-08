@@ -1,4 +1,4 @@
-package seda.baseapp.todo;
+package seda.baseapp.model;
 
 public enum SampleType {
     HEAD_CHECK_NEG_CNT,

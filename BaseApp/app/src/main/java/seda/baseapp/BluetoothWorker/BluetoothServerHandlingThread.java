@@ -85,10 +85,20 @@ public class BluetoothServerHandlingThread extends Thread
             try
             {
                 Log.wtf(TAG, "Accepting client");
-                ((MainActivity)activity).showConnectionAnimation(false);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((MainActivity)activity).showConnectionAnimation(false);
+                    }
+                });
                 clientSocket = mmServerSocket.accept();
                 isInOutThreadAlive = true;
-                ((MainActivity)activity).showConnectionAnimation(true);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((MainActivity)activity).showConnectionAnimation(true);
+                    }
+                });
 
                 Log.wtf(TAG, "Accepted one client");
 
