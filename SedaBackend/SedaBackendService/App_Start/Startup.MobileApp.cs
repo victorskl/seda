@@ -53,15 +53,15 @@ namespace SedaBackendService
     {
         protected override void Seed(SedaBackendContext context)
         {
-            List<TodoItem> todoItems = new List<TodoItem>
+            List<Sample> samples = new List<Sample>
             {
-                new TodoItem { Id = Guid.NewGuid().ToString(), Text = "First item", Complete = false },
-                new TodoItem { Id = Guid.NewGuid().ToString(), Text = "Second item", Complete = false },
+                new Sample { Id = Guid.NewGuid().ToString(), text = "First item", complete = false },
+                new Sample { Id = Guid.NewGuid().ToString(), text = "Second item", complete = false },
             };
 
-            foreach (TodoItem todoItem in todoItems)
+            foreach (Sample sample in samples)
             {
-                context.Set<TodoItem>().Add(todoItem);
+                context.Set<Sample>().Add(sample);
             }
 
             base.Seed(context);
