@@ -1,5 +1,6 @@
 package seda.consoleapp;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -28,14 +29,14 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void> {
     private BufferedWriter out;
     private BufferedReader in;
     private BluetoothDevice device;
-    private AppCompatActivity activity;
+    private Activity activity;
     private Thread sendThread;
     private Thread readThread;
 
     String aString = "OUR_SECRET";
     UUID resultUUID = UUID.nameUUIDFromBytes(aString.getBytes());
 
-    BluetoothConnectionAsync(AppCompatActivity activity, BluetoothAdapter bluetoothAdapter, BluetoothDevice device) {
+    BluetoothConnectionAsync(Activity activity, BluetoothAdapter bluetoothAdapter, BluetoothDevice device) {
         this.activity = activity;
         this.bluetoothAdapter = bluetoothAdapter;
         this.device = device;

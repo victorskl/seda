@@ -63,7 +63,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
     private HashMap<String, BluetoothDevice> bluetoothDeviceHashMap = new HashMap<>();
-    private String bluetoothServerDeviceName = "SmartisanBing";
+    private String bluetoothServerDeviceName = "HUAWEI BTV";
     private AsyncTask<Void, Void, Void> startBluetoothConnection;
 
     private ViewMode mViewMode = ViewMode.RGBA;
@@ -145,7 +145,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //              found server device, start connecting to server, assume once found server is already up
                 if (deviceName != null && deviceName.equalsIgnoreCase(bluetoothServerDeviceName)) {
                     Log.d(TAG, "start bluetooth connection");
-                    startBluetoothConnection = new BluetoothConnectionAsync((AppCompatActivity) context, bluetoothAdapter, bluetoothDeviceHashMap.get(bluetoothServerDeviceName));
+                    startBluetoothConnection = new BluetoothConnectionAsync((Activity) context, bluetoothAdapter, bluetoothDeviceHashMap.get(bluetoothServerDeviceName));
                     startBluetoothConnection.execute();
 
                 }
@@ -191,10 +191,14 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+
+//        if (!bluetoothAdapter.isEnabled()) {
+        Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//            need this to discover other device, simply sending intent does not mean it is ready
+//        int turnOnBluetoothRequestCode = 1;
+//        startActivityForResult(turnOn, turnOnBluetoothRequestCode);
             startActivityForResult(turnOn, REQUEST_ENABLE_BT);
-        }
+//        }
 
         //TODO to discuss with Bing;
         // if ConsoleApp is BT client, we can let user
@@ -204,7 +208,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //                new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 //        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 //        startActivity(discoverableIntent);
-//        //startActivityForResult(discoverableIntent, 1);
+//        startActivityForResult(discoverableIntent, 1);
 
         // Register for broadcasts when a device is discovered.
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -548,26 +552,27 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // means request bluetooth successfully
-        if (requestCode == 0) {
-            if (resultCode == RESULT_OK) {
-                Log.wtf(TAG, "request bluetooth successfully");
-            } else {
-                Log.wtf(TAG, "request bluetooth failed");
-            }
-        }
 
-        if (requestCode == 1) {
+//        if (requestCode == 0) {
+//            if (resultCode == RESULT_OK) {
+//                Log.wtf(TAG, "request bluetooth successfully");
+//            } else {
+//                Log.wtf(TAG, "request bluetooth failed");
+//            }
+//        }
+
+        if (requestCode == REQUEST_ENABLE_BT) {
 
             //if dicoverable failed it will return cancel
             //seemed that you need to make sure bluetooth is opened then start discoverying other devices
             //otherwise, the dicovery process wont start.
-            if (resultCode != RESULT_CANCELED) {
+            if (resultCode == RESULT_OK) {
                 if (bluetoothAdapter.isDiscovering()) {
                     bluetoothAdapter.cancelDiscovery();
                 }
 
+                Toast.makeText(getApplicationContext(), "start discovering", Toast.LENGTH_LONG).show();
                 bluetoothAdapter.startDiscovery();
-
                 Log.wtf(TAG, "dic request bluetooth successfully -> result code -> " + resultCode);
             } else {
                 Log.wtf(TAG, "dic request bluetooth failed -> result code -> " + requestCode);

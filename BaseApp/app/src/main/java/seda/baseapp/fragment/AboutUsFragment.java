@@ -37,37 +37,37 @@ public class AboutUsFragment extends Fragment
 
 //        Button startBluetoothButton = (Button)getActivity().findViewById(R.id.startBluetoothButton);
 
-        Button asServerButton = (Button)getActivity().findViewById(R.id.asServerButton);
-
-
-
-        Button asClientButton = (Button)getActivity().findViewById(R.id.asClientButton);
-
-        final TextView displayBluetoothTextView = (TextView)getActivity().findViewById(R.id.displayBluetoothTextView);
-
-
-
-
-        asServerButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                Log.wtf("bingfengappservice", "server start");
-                ((MainActivity) getActivity()).startServerThread(displayBluetoothTextView);
-            }
-        });
-
-        asClientButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                Log.wtf("bingfengappservice", "client start");
-
-                ((MainActivity)getActivity()).startClientThread("SmartisanBing", displayBluetoothTextView);
-            }
-        });
+//        Button asServerButton = (Button)getActivity().findViewById(R.id.asServerButton);
+//
+//
+//
+//        Button asClientButton = (Button)getActivity().findViewById(R.id.asClientButton);
+//
+//        final TextView displayBluetoothTextView = (TextView)getActivity().findViewById(R.id.displayBluetoothTextView);
+//
+//
+//
+//
+//        asServerButton.setOnClickListener(new View.OnClickListener()
+//        {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                Log.wtf("bingfengappservice", "server start");
+//                ((MainActivity) getActivity()).startServerThread(displayBluetoothTextView);
+//            }
+//        });
+//
+//        asClientButton.setOnClickListener(new View.OnClickListener()
+//        {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                Log.wtf("bingfengappservice", "client start");
+//
+//                ((MainActivity)getActivity()).startClientThread("SmartisanBing", displayBluetoothTextView);
+//            }
+//        });
 
 
 
