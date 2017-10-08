@@ -13,10 +13,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -63,8 +61,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
     private HashMap<String, BluetoothDevice> bluetoothDeviceHashMap = new HashMap<>();
-    private String bluetoothServerDeviceName = "HUAWEI BTV";
-    private AsyncTask<Void, Void, Void> startBluetoothConnection;
+//    private String bluetoothServerDeviceName = "HUAWEI BTV";
+    private String bluetoothServerDeviceName = "SmartisanBing";
+    private BluetoothConnectionAsync startBluetoothConnection;
 
     private ViewMode mViewMode = ViewMode.RGBA;
     private Mat mRgba;
@@ -372,11 +371,13 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         sample.setCount(tmp_count);
         sample.setEndTime(Calendar.getInstance().getTime());
 
-        Log.i(TAG, "sample created to BaseApp: "
+        Log.i(TAG, "Sample created and sending to BaseApp: "
                 + " st: " + sample.getStartTime()
                 + " et: " + sample.getEndTime()
                 + " ty: " + sample.getSampleType().toString()
                 + " ct: " + sample.getCount());
+
+        startBluetoothConnection.sendData(sample.toJSONObject().toString());
 
         // reset
         tmp_count = 0;

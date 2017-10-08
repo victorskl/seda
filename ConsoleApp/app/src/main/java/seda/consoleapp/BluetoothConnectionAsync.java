@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -30,8 +29,8 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void> {
     private BufferedReader in;
     private BluetoothDevice device;
     private Activity activity;
-    private Thread sendThread;
-    private Thread readThread;
+    private BluetoothWriteThread sendThread;
+    private BluetoothReadThread readThread;
 
     String aString = "OUR_SECRET";
     UUID resultUUID = UUID.nameUUIDFromBytes(aString.getBytes());
@@ -66,7 +65,8 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    protected void sendData(String sendString) {
+    public void sendData(String sendString) {
+        sendThread.addSendMessageToQueue(sendString);
 
     }
 }

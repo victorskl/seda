@@ -1,7 +1,10 @@
 package seda.consoleapp;
 
+import org.json.JSONObject;
+
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 
 public class Sample implements Serializable {
 
@@ -44,4 +47,17 @@ public class Sample implements Serializable {
     public void setCount(int count) {
         this.count = count;
     }
+
+    public JSONObject toJSONObject()
+    {
+        HashMap<String, String> data = new HashMap<>();
+        data.put("count", "" + count);
+        data.put("startTime", "" + startTime.getTime());
+        data.put("endTime", "" + endTime.getTime());
+        data.put("sampleType", "" + sampleType);
+
+        return new JSONObject(data);
+    }
+
+
 }
