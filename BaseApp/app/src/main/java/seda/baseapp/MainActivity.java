@@ -27,6 +27,7 @@ import seda.baseapp.fragment.ProfileFragment;
 import seda.baseapp.fragment.SedaStatusFragment;
 import seda.baseapp.fragment.ToDoFragment;
 import seda.baseapp.model.SampleDao;
+import seda.baseapp.fragment.PublicProfileFragment;
 
 //import android.app.Fragment;
 //import android.app.FragmentManager;
@@ -233,6 +234,14 @@ public class MainActivity extends AppCompatActivity {
         {
 
             SedaStatusFragment fragment = new SedaStatusFragment();
+
+            toggleFragment(fragmentManager, fragment, itemTagName, position);
+
+        }
+        else if (itemTagName.equals(getString(R.string.public_profile)) && !itemTagName.equals(curFragmentName))
+        {
+
+            PublicProfileFragment fragment = new PublicProfileFragment();
 
             toggleFragment(fragmentManager, fragment, itemTagName, position);
 
