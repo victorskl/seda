@@ -44,6 +44,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import static org.opencv.core.Core.FONT_HERSHEY_TRIPLEX;
@@ -53,8 +54,11 @@ import static org.opencv.core.Core.FONT_HERSHEY_TRIPLEX;
 
 public class MainActivity extends Activity implements CvCameraViewListener2 {
 
+    private int tmp_count = 0;
+
     private static final String TAG = "MainActivity";
     private static final int REQUEST_ENABLE_BT = 1;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 2;
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice bluetoothDevice;
@@ -173,20 +177,20 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         mOpenCvCameraView.setVisibility(CameraBridgeViewBase.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
+        initBluetooth();
 
-//        Bluetooth setting up
-//        Permission requesting code
-        int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 2;
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+    }
 
-//        Requsting COARSE_LOCATION which is needed for bluetooth
-//        Need to request it on run time
+    private void initBluetooth() {
+
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                 MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
 
-//      bluetooth https://www.tutorialspoint.com/android/android_bluetooth.htm
-
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
 
 //        if (!bluetoothAdapter.isEnabled()) {
         Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -209,11 +213,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         // Register for broadcasts when a device is discovered.
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter);
-
-        //monitoring headcheck via gyroscope
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        gyroscopeSensor =sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -314,23 +315,72 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
         sensorManager.unregisterListener(gyroscopeEventLisetner);
 
+        stopRecording();
+
         if (item == mItemPreviewRGBA) {
             mViewMode = ViewMode.RGBA;
-        } else if (item == mItemPreviewCanny) {
+        }
+
+        else if (item == mItemPreviewCanny) {
             mViewMode = ViewMode.CANNY;
-        } else if (item == mItemHeadCheck) {
+        }
+
+        else if (item == mItemHeadCheck) {
             mViewMode = ViewMode.HEAD_CHECK;
+
+            startRecording(SampleType.HEAD_CHECK_POS_CNT);
+
             initHeadCheck();
             sensorManager.registerListener(gyroscopeEventLisetner, gyroscopeSensor, SensorManager.SENSOR_DELAY_FASTEST);
-        } else if (item == mItemLaneDetection) {
+        }
+
+        else if (item == mItemLaneDetection) {
+
+            startRecording(SampleType.HEAD_CHECK_NEG_CNT);
+
             mViewMode = ViewMode.LANE_DETECTION;
-        } else if (item == mItemLaneDetectionCanny) {
+        }
+
+        else if (item == mItemLaneDetectionCanny) {
+
+            startRecording(SampleType.HEAD_CHECK_NEG_CNT);
+
             mViewMode = ViewMode.LANE_DETECTION_CANNY;
-        } else if (item == mItemCarDetection) {
+        }
+
+        else if (item == mItemCarDetection) {
+
+            startRecording(SampleType.CAR_DISTANCE_NEG_CNT);
+
             mViewMode = ViewMode.CAR_DETECTION;
         }
 
         return true;
+    }
+
+    Sample sample;
+
+    private void startRecording(SampleType sampleType) {
+        sample = new Sample();
+        sample.setStartTime(Calendar.getInstance().getTime());
+        sample.setSampleType(sampleType);
+    }
+
+    private void stopRecording() {
+        if (sample == null) return;
+
+        sample.setCount(tmp_count);
+        sample.setEndTime(Calendar.getInstance().getTime());
+
+        Log.i(TAG, "sample created to BaseApp: "
+                + " st: " + sample.getStartTime()
+                + " et: " + sample.getEndTime()
+                + " ty: " + sample.getSampleType().toString()
+                + " ct: " + sample.getCount());
+
+        // reset
+        tmp_count = 0;
+        sample = null;
     }
 
     // initialize Haar Cascade
@@ -430,12 +480,14 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     }
 
     private void performLaneDetection(int outputMode) {
+
         Mat lines = new Mat();
 
         //procedure: blur -> canny(edges) -> lines -> filter lines -> draw lines
         Imgproc.GaussianBlur(mGray, mGray, new Size(11, 11), 0);
         Imgproc.Canny(mGray, mIntermediateMat, 80, 100);
         Imgproc.HoughLinesP(mIntermediateMat, lines, 1, Math.PI / 180, 40, 30, 100);
+
         int count = 0;
 
         //decide output canny or normal
@@ -443,7 +495,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         if (outputMode == LANE_DETECTION_CANNY) {
             Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
         }
-
 
         //lines.rows() is the number of lines produced by houghlinesP
         for (int i = 0; i < lines.rows(); i++) {
@@ -460,12 +511,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         }
 
         if (count < 4 && (System.currentTimeMillis() - prevLaneChangeTime) > 5000) {
-
-            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.headcheck1);// the song is a filename which i have pasted inside a folder **raw** created under the **res** folder.//
+            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.headcheck1);
             mp.start();
-
             prevLaneChangeTime = System.currentTimeMillis();
 
+            tmp_count++;
         }
     }
 
@@ -473,25 +523,24 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         if (gyroscopeEventLisetner != null) return;
 
         gyroscopeEventLisetner = new SensorEventListener() {
+
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
 
                 if ((sensorEvent.values[0] > 0.8f) || (sensorEvent.values[0] < -0.8f)) {
                     if ((System.currentTimeMillis() - prevHeadCheckTime) > 8000) {
-
-                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.headcheck2);// the song is a filename which i have pasted inside a folder **raw** created under the **res** folder.//
+                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.headcheck2);
                         mp.start();
-
                         prevHeadCheckTime = System.currentTimeMillis();
 
+                        tmp_count++;
                     }
-
                 }
             }
 
             @Override
             public void onAccuracyChanged(Sensor sensor, int i) {
-
+                //
             }
         };
 
