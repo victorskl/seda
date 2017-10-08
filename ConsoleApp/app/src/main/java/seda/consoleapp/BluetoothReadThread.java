@@ -1,28 +1,41 @@
+/**
+ *
+ * BluetoothReadThread is a read thread class which is used to read message from the server
+ *
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.consoleapp;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
-/**
- * Created by liubingfeng on 7/10/2017.
- */
-
 public class BluetoothReadThread extends Thread {
 
     private static final String TAG = "BluetoothReadThread";
 
+//  MainActivity instance
     private Activity activity;
-    BufferedReader in;
+
+//  server socket input stream
+    private BufferedReader in;
 
     BluetoothReadThread(Activity activity, BufferedReader in) {
         this.activity = activity;
         this.in = in;
     }
+
+
+
+    /**
+     * This is run method will listen the message from server and show it on Toast.
+     * @return void
+     */
 
     @Override
     public void run() {

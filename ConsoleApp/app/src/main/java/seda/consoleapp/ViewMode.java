@@ -1,3 +1,13 @@
+/**
+ *
+ * ViewMode is used to indicate the current view mode of the camera frame (i.e. how to process
+ * the frame)
+ *
+ * The car training xml files are from https://github.com/ramitix/Car_lane_sign_detection
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.consoleapp;
 
 public enum ViewMode {

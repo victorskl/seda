@@ -1,3 +1,11 @@
+/**
+ *
+ * SampleType enum used to tell which data is collect in the Sample instance.
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
+
 package seda.consoleapp;
 
 public enum SampleType {

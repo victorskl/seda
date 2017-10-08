@@ -1,3 +1,4 @@
+
 package seda.baseapp.adapter;
 
 import android.app.Activity;
@@ -11,10 +12,6 @@ import android.widget.TextView;
 
 import seda.baseapp.R;
 
-
-/**
- * Created by liubingfeng on 24/09/2017.
- */
 public class NavigationItemAdapter extends ArrayAdapter<String>
 {
 

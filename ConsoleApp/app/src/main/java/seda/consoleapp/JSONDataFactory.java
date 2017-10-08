@@ -1,3 +1,11 @@
+/**
+ *
+ * This is the dummy JSON data class we used to test our Bluetooth socket communication.
+ *
+ * @author  San Kho Lin (829463), Bingfeng Liu (639187), Yixin Chen(522819)
+ * @version 1.0
+ * @since   2017-09-15
+ */
 package seda.consoleapp;
 
 import org.json.JSONObject;
