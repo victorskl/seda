@@ -1,5 +1,6 @@
 package seda.consoleapp;
 
+import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,10 +16,10 @@ public class BluetoothReadThread extends Thread {
 
     private static final String TAG = "BluetoothReadThread";
 
-    private AppCompatActivity activity;
+    private Activity activity;
     BufferedReader in;
 
-    BluetoothReadThread(AppCompatActivity activity, BufferedReader in) {
+    BluetoothReadThread(Activity activity, BufferedReader in) {
         this.activity = activity;
         this.in = in;
     }

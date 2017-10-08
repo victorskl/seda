@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
+import seda.baseapp.BluetoothWorker.BluetoothServerHandlingThread;
 import seda.baseapp.adapter.NavigationItemAdapter;
 import seda.baseapp.fragment.AboutUsFragment;
 import seda.baseapp.fragment.DriverProfileFragment;
@@ -71,40 +72,47 @@ public class MainActivity extends AppCompatActivity {
     private ListView drawerList = null;
     private String curFragmentName = "";
 
-    private BluetoothAdapter BA;
+    private BluetoothAdapter bluetoothAdapter;
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice bluetoothDevice;
     private HashMap<String, BluetoothDevice> bluetoothDeviceHashMap = new HashMap<String, BluetoothDevice>();
 
+    private BluetoothServerHandlingThread serverThread;
+
+    private int discoverableRequestCode = 1;
+    private int turnOnBluetoothCode = 0;
+//  discoverableDuration is in seconds
+    private int discoverableDuration = 1000;
+
 
     // Create a BroadcastReceiver for ACTION_FOUND.
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Discovery has found a device. Get the BluetoothDevice
-                // object and its info from the Intent.
-                Log.wtf("bingfengappservice", " BluetoothDevice.ACTION_FOUND.equals(action) -> " + BluetoothDevice.ACTION_FOUND.equals(action));
-                bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.wtf("bingfengappservice", " bluetoothDevice " + bluetoothDevice);
-
-                final String deviceName = bluetoothDevice.getName();
-                Log.wtf("bingfengappservice", " deviceName " + deviceName);
-
-                bluetoothDeviceHashMap.put(deviceName, bluetoothDevice);
-                runOnUiThread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        Toast.makeText(getApplicationContext(), "Found -> " + deviceName, Toast.LENGTH_LONG).show();
-                    }
-                });
-
-                String deviceHardwareAddress = bluetoothDevice.getAddress(); // MAC address
-            }
-        }
-    };
+//    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+//        public void onReceive(Context context, Intent intent) {
+//            String action = intent.getAction();
+//            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+//                // Discovery has found a device. Get the BluetoothDevice
+//                // object and its info from the Intent.
+//                Log.wtf("bingfengappservice", " BluetoothDevice.ACTION_FOUND.equals(action) -> " + BluetoothDevice.ACTION_FOUND.equals(action));
+//                bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//                Log.wtf("bingfengappservice", " bluetoothDevice " + bluetoothDevice);
+//
+//                final String deviceName = bluetoothDevice.getName();
+//                Log.wtf("bingfengappservice", " deviceName " + deviceName);
+//
+//                bluetoothDeviceHashMap.put(deviceName, bluetoothDevice);
+//                runOnUiThread(new Runnable()
+//                {
+//                    @Override
+//                    public void run()
+//                    {
+//                        Toast.makeText(getApplicationContext(), "Found -> " + deviceName, Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//
+//                String deviceHardwareAddress = bluetoothDevice.getAddress(); // MAC address
+//            }
+//        }
+//    };
 
 
     /** Called when the activity is first created. */
@@ -155,26 +163,30 @@ public class MainActivity extends AppCompatActivity {
 
 //        blue tooth https://www.tutorialspoint.com/android/android_bluetooth.htm
 
-        BA = BluetoothAdapter.getDefaultAdapter();
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        bluetoothAdapter.enable();
 
 //        these two line ask request for blue tooth
         Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 //
 //        // 0-> request code
-        startActivityForResult(turnOn, 0);
+        startActivityForResult(turnOn, turnOnBluetoothCode);
 
 
 //         make this device discoverable in 300s
         Intent discoverableIntent =
                 new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+//        discoverable forever
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, discoverableDuration);
+        startActivityForResult(discoverableIntent, discoverableRequestCode);
 
-        startActivityForResult(discoverableIntent, 1);
-
+//        server dont need to discover devices just waiting for connection
         // Register for broadcasts when a device is discovered.
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mReceiver, filter);
+//        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//        registerReceiver(mReceiver, filter);
 
+//        serverThread = new BluetoothServerHandlingThread(bluetoothAdapter, this);
+//        serverThread.start();
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -265,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         // means request bluetooth successfully
-        if (requestCode == 0)
+        if (requestCode == turnOnBluetoothCode)
         {
             if (resultCode == RESULT_OK)
             {
@@ -277,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if (requestCode == 1)
+        if (requestCode == discoverableRequestCode)
         {
 
             //if dicoverable failed it will return cancel
@@ -285,11 +297,16 @@ public class MainActivity extends AppCompatActivity {
             //otherwise, the dicovery process wont start.
             if (resultCode != RESULT_CANCELED)
             {
-                if (BA.isDiscovering()) {
-                    BA.cancelDiscovery();
-                }
 
-                BA.startDiscovery();
+
+                serverThread = new BluetoothServerHandlingThread(bluetoothAdapter, this);
+                serverThread.start();
+
+//                if (bluetoothAdapter.isDiscovering()) {
+//                    bluetoothAdapter.cancelDiscovery();
+//                }
+//
+//                bluetoothAdapter.startDiscovery();
 
                 Log.wtf("bingfengappservice", "dic request bluetooth successfully -> result code -> " + resultCode);
             }
@@ -302,211 +319,211 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void startServerThread(TextView displayBluetoothTextView)
-    {
-        new AcceptThread(displayBluetoothTextView).start();
-    }
+//    public void startServerThread(TextView displayBluetoothTextView)
+//    {
+//        new AcceptThread(displayBluetoothTextView).start();
+//    }
+//
+//    public void startClientThread(String name, TextView displayBluetoothTextView)
+//    {
+//        new ConnectThread(bluetoothDeviceHashMap.get(name), displayBluetoothTextView).start();
+//    }
 
-    public void startClientThread(String name, TextView displayBluetoothTextView)
-    {
-        new ConnectThread(bluetoothDeviceHashMap.get(name), displayBluetoothTextView).start();
-    }
-
-    private class AcceptThread extends Thread{
-        private final BluetoothServerSocket mmServerSocket;
-        private final TextView displayBluetoothTextView;
-
-        public AcceptThread(TextView displayBluetoothTextView) {
-            // Use a temporary object that is later assigned to mmServerSocket
-            // because mmServerSocket is final.
-            //https://stackoverflow.com/questions/29059530/is-there-any-way-to-generate-the-same-uuid-based-on-the-seed-string-in-jdk-or-so
-            this.displayBluetoothTextView = displayBluetoothTextView;
-            BluetoothServerSocket tmp = null;
-            String name = "server1";
-            String aString="OUR_SECRET";
-            UUID resultUUID = UUID.nameUUIDFromBytes(aString.getBytes());
-
-            try {
-                // MY_UUID is the app's UUID string, also used by the client code.
-                tmp = BA.listenUsingRfcommWithServiceRecord(name, resultUUID);
-            } catch (IOException e) {
-                Log.wtf("bingfengappserver", "Socket's listen() method failed", e);
-            }
-            mmServerSocket = tmp;
-        }
-
-        public void run() {
-            BufferedWriter out;
-            BufferedReader in;
-            BluetoothSocket clientSocket = null;
-            // Keep listening until exception occurs or a socket is returned.
-            while (true) {
-                try {
-                    clientSocket = mmServerSocket.accept();
-                } catch (IOException e) {
-                    Log.wtf("bingfengappserver", "Socket's accept() method failed", e);
-                    break;
-                }
-
-                if (clientSocket != null) {
-                    // A connection was accepted. Perform work associated with
-                    // the connection in a separate thread.
-//                    manageMyConnectedSocket(socket);
-                    try
-                    {
-//                        echo server
-                        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-                        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                        String inputLine = null;
-                        while (true)
-                        {
-                            out.write("" + System.currentTimeMillis() + "\n");
-                            out.flush();
-                            inputLine = in.readLine();
-                            Log.wtf("bingfengappservice", "From Client -> " + inputLine);
-//                            displayBluetoothTextView.setText(inputLine);
-
-//                            this code is ugly will refactor it later. just want to show msg on the UI
-                            final String finalInputLine = inputLine;
-                            runOnUiThread(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    Toast.makeText(getApplicationContext(), "From Client -> " + finalInputLine, Toast.LENGTH_LONG).show();
-                                }
-                            });
-
-                            Thread.sleep(1000);
-
-                        }
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            mmServerSocket.close();
-                        } catch (IOException e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-
-        // Closes the connect socket and causes the thread to finish.
-        public void cancel() {
-            try {
-                mmServerSocket.close();
-            } catch (IOException e) {
-                Log.wtf("bingfengappservice", "Could not close the connect socket", e);
-            }
-        }
-    }
-
-    private class ConnectThread extends Thread{
-        private final BluetoothSocket mmSocket;
-        private final BluetoothDevice mmDevice;
-        private final TextView displayBluetoothTextView;
-        private BufferedWriter out;
-        private BufferedReader in;
-
-        public ConnectThread(BluetoothDevice device, TextView displayBluetoothTextView) {
-            // Use a temporary object that is later assigned to mmSocket
-            // because mmSocket is final.
-            BluetoothSocket tmp = null;
-            mmDevice = device;
-            this.displayBluetoothTextView = displayBluetoothTextView;
-
-            String name = "server1";
-            String aString="OUR_SECRET";
-            UUID resultUUID = UUID.nameUUIDFromBytes(aString.getBytes());
-
-            try {
-                // Get a BluetoothSocket to connect with the given BluetoothDevice.
-                // MY_UUID is the app's UUID string, also used in the server code.
-                tmp = device.createRfcommSocketToServiceRecord(resultUUID);
-            } catch (IOException e) {
-                Log.wtf("bingfengappservice", "Socket's create() method failed", e);
-            }
-            //client connecting to server sockt
-            mmSocket = tmp;
-        }
-
-        public void run() {
-            // Cancel discovery because it otherwise slows down the connection.
-            BA.cancelDiscovery();
-
-            try {
-                // Connect to the remote device through the socket. This call blocks
-                // until it succeeds or throws an exception.
-                mmSocket.connect();
-                out = new BufferedWriter(new OutputStreamWriter(mmSocket.getOutputStream()));
-                in = new BufferedReader(new InputStreamReader(mmSocket.getInputStream()));
-                String inputLine = null;
-                while (true)
-                {
-                    Log.wtf("bingfengappservice", "start reading");
-                    inputLine = in.readLine();
-                    Log.wtf("bingfengappservice", "from server -> " + inputLine);
-
-//                    displayBluetoothTextView.setText(inputLine);
-
-                    //this code is ugly will refactor it later. just want to show msg on the UI
-                    final String finalInputLine = inputLine;
-                    runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            Toast.makeText(getApplicationContext(), "From server -> " + finalInputLine, Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-//                    Toast.makeText(getApplicationContext(), "From server -> " + inputLine,Toast.LENGTH_LONG).show();
-                    out.write("" + inputLine + "\n");
-                    //have to flush it otherwise does not work.
-                    out.flush();
-
-                    Thread.sleep(1000);
-                }
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-
-                // Unable to connect; close the socket and return.
-            }
-            finally
-            {
-                try
-                {
-                    mmSocket.close();
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-
-            // The connection attempt succeeded. Perform work associated with
-            // the connection in a separate thread.
-//            manageMyConnectedSocket(mmSocket);
-        }
-
-        // Closes the client socket and causes the thread to finish.
-        public void cancel() {
-            try {
-                mmSocket.close();
-            } catch (IOException e) {
-                Log.wtf("bingfengappservice", "Could not close the client socket", e);
-            }
-        }
-    }
+//    private class AcceptThread extends Thread{
+//        private final BluetoothServerSocket mmServerSocket;
+//        private final TextView displayBluetoothTextView;
+//
+//        public AcceptThread(TextView displayBluetoothTextView) {
+//            // Use a temporary object that is later assigned to mmServerSocket
+//            // because mmServerSocket is final.
+//            //https://stackoverflow.com/questions/29059530/is-there-any-way-to-generate-the-same-uuid-based-on-the-seed-string-in-jdk-or-so
+//            this.displayBluetoothTextView = displayBluetoothTextView;
+//            BluetoothServerSocket tmp = null;
+//            String name = "server1";
+//            String aString="OUR_SECRET";
+//            UUID resultUUID = UUID.nameUUIDFromBytes(aString.getBytes());
+//
+//            try {
+//                // MY_UUID is the app's UUID string, also used by the client code.
+//                tmp = BA.listenUsingRfcommWithServiceRecord(name, resultUUID);
+//            } catch (IOException e) {
+//                Log.wtf("bingfengappserver", "Socket's listen() method failed", e);
+//            }
+//            mmServerSocket = tmp;
+//        }
+//
+//        public void run() {
+//            BufferedWriter out;
+//            BufferedReader in;
+//            BluetoothSocket clientSocket = null;
+//            // Keep listening until exception occurs or a socket is returned.
+//            while (true) {
+//                try {
+//                    clientSocket = mmServerSocket.accept();
+//                } catch (IOException e) {
+//                    Log.wtf("bingfengappserver", "Socket's accept() method failed", e);
+//                    break;
+//                }
+//
+//                if (clientSocket != null) {
+//                    // A connection was accepted. Perform work associated with
+//                    // the connection in a separate thread.
+////                    manageMyConnectedSocket(socket);
+//                    try
+//                    {
+////                        echo server
+//                        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+//                        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//                        String inputLine = null;
+//                        while (true)
+//                        {
+//                            out.write("" + System.currentTimeMillis() + "\n");
+//                            out.flush();
+//                            inputLine = in.readLine();
+//                            Log.wtf("bingfengappservice", "From Client -> " + inputLine);
+////                            displayBluetoothTextView.setText(inputLine);
+//
+////                            this code is ugly will refactor it later. just want to show msg on the UI
+//                            final String finalInputLine = inputLine;
+//                            runOnUiThread(new Runnable()
+//                            {
+//                                @Override
+//                                public void run()
+//                                {
+//                                    Toast.makeText(getApplicationContext(), "From Client -> " + finalInputLine, Toast.LENGTH_LONG).show();
+//                                }
+//                            });
+//
+//                            Thread.sleep(1000);
+//
+//                        }
+//                    } catch (Exception e)
+//                    {
+//                        e.printStackTrace();
+//                    }
+//                    finally
+//                    {
+//                        try
+//                        {
+//                            mmServerSocket.close();
+//                        } catch (IOException e)
+//                        {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                    break;
+//                }
+//            }
+//        }
+//
+//        // Closes the connect socket and causes the thread to finish.
+//        public void cancel() {
+//            try {
+//                mmServerSocket.close();
+//            } catch (IOException e) {
+//                Log.wtf("bingfengappservice", "Could not close the connect socket", e);
+//            }
+//        }
+//    }
+//
+//    private class ConnectThread extends Thread{
+//        private final BluetoothSocket mmSocket;
+//        private final BluetoothDevice mmDevice;
+//        private final TextView displayBluetoothTextView;
+//        private BufferedWriter out;
+//        private BufferedReader in;
+//
+//        public ConnectThread(BluetoothDevice device, TextView displayBluetoothTextView) {
+//            // Use a temporary object that is later assigned to mmSocket
+//            // because mmSocket is final.
+//            BluetoothSocket tmp = null;
+//            mmDevice = device;
+//            this.displayBluetoothTextView = displayBluetoothTextView;
+//
+//            String name = "server1";
+//            String aString="OUR_SECRET";
+//            UUID resultUUID = UUID.nameUUIDFromBytes(aString.getBytes());
+//
+//            try {
+//                // Get a BluetoothSocket to connect with the given BluetoothDevice.
+//                // MY_UUID is the app's UUID string, also used in the server code.
+//                tmp = device.createRfcommSocketToServiceRecord(resultUUID);
+//            } catch (IOException e) {
+//                Log.wtf("bingfengappservice", "Socket's create() method failed", e);
+//            }
+//            //client connecting to server sockt
+//            mmSocket = tmp;
+//        }
+//
+//        public void run() {
+//            // Cancel discovery because it otherwise slows down the connection.
+//            BA.cancelDiscovery();
+//
+//            try {
+//                // Connect to the remote device through the socket. This call blocks
+//                // until it succeeds or throws an exception.
+//                mmSocket.connect();
+//                out = new BufferedWriter(new OutputStreamWriter(mmSocket.getOutputStream()));
+//                in = new BufferedReader(new InputStreamReader(mmSocket.getInputStream()));
+//                String inputLine = null;
+//                while (true)
+//                {
+//                    Log.wtf("bingfengappservice", "start reading");
+//                    inputLine = in.readLine();
+//                    Log.wtf("bingfengappservice", "from server -> " + inputLine);
+//
+////                    displayBluetoothTextView.setText(inputLine);
+//
+//                    //this code is ugly will refactor it later. just want to show msg on the UI
+//                    final String finalInputLine = inputLine;
+//                    runOnUiThread(new Runnable()
+//                    {
+//                        @Override
+//                        public void run()
+//                        {
+//                            Toast.makeText(getApplicationContext(), "From server -> " + finalInputLine, Toast.LENGTH_LONG).show();
+//                        }
+//                    });
+//
+////                    Toast.makeText(getApplicationContext(), "From server -> " + inputLine,Toast.LENGTH_LONG).show();
+//                    out.write("" + inputLine + "\n");
+//                    //have to flush it otherwise does not work.
+//                    out.flush();
+//
+//                    Thread.sleep(1000);
+//                }
+//            }
+//            catch (Exception e)
+//            {
+//                e.printStackTrace();
+//
+//                // Unable to connect; close the socket and return.
+//            }
+//            finally
+//            {
+//                try
+//                {
+//                    mmSocket.close();
+//                } catch (IOException e)
+//                {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            // The connection attempt succeeded. Perform work associated with
+//            // the connection in a separate thread.
+////            manageMyConnectedSocket(mmSocket);
+//        }
+//
+//        // Closes the client socket and causes the thread to finish.
+//        public void cancel() {
+//            try {
+//                mmSocket.close();
+//            } catch (IOException e) {
+//                Log.wtf("bingfengappservice", "Could not close the client socket", e);
+//            }
+//        }
+//    }
 
 //    should add this to console app too
     @Override
@@ -514,7 +531,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         // Don't forget to unregister the ACTION_FOUND receiver.
-        unregisterReceiver(mReceiver);
+//        unregisterReceiver(mReceiver);
     }
 
 

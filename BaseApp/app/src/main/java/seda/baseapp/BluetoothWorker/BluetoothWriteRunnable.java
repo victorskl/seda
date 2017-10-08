@@ -27,6 +27,7 @@ public class BluetoothWriteRunnable implements Runnable
     {
         this.out = out;
         this.activity = activity;
+        addSendMessageQueue("Hello From Server");
     }
 
     public void addSendMessageQueue(String msg)
