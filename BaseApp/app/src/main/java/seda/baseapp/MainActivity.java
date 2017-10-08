@@ -25,7 +25,6 @@ import seda.baseapp.fragment.AboutUsFragment;
 import seda.baseapp.fragment.DriverProfileFragment;
 import seda.baseapp.fragment.ProfileFragment;
 import seda.baseapp.fragment.SedaStatusFragment;
-import seda.baseapp.fragment.ToDoFragment;
 import seda.baseapp.model.SampleDao;
 import seda.baseapp.fragment.PublicProfileFragment;
 
@@ -201,17 +200,8 @@ public class MainActivity extends AppCompatActivity {
         //use hide instead
         //change fragment in activity_main to the right layout
         //https://stackoverflow.com/questions/22713128/how-can-i-switch-between-two-fragments-without-recreating-the-fragments-each-ti
-        if(itemTagName.equals(getString(R.string.to_do_item)) && !itemTagName.equals(curFragmentName))
+        if (itemTagName.equals(getString(R.string.about_us)) && !itemTagName.equals(curFragmentName))
         {
-            ToDoFragment fragment = new ToDoFragment();
-
-            toggleFragment(fragmentManager, fragment, itemTagName, position);
-
-        }
-        else if (itemTagName.equals(getString(R.string.about_us)) && !itemTagName.equals(curFragmentName))
-        {
-
-
             if (aboutUsFragment == null)
             {
                 aboutUsFragment = new AboutUsFragment();
