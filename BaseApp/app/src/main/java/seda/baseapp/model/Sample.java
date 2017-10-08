@@ -1,30 +1,17 @@
-package seda.baseapp.todo;
+package seda.baseapp.model;
 
-/**
- * Represents an item in a ToDo list
- */
-public class ToDoItem {
+public class Sample {
 
-    /**
-     * Item text
-     */
     @com.google.gson.annotations.SerializedName("text")
     private String mText;
 
-    /**
-     * Item Id
-     */
     @com.google.gson.annotations.SerializedName("id")
     private String mId;
 
-    /**
-     * Indicates if the item is completed
-     */
     @com.google.gson.annotations.SerializedName("complete")
     private boolean mComplete;
 
-
-    // our sample
+    // SEDA data sampling
 
     @com.google.gson.annotations.SerializedName("startTime")
     private long startTime;
@@ -37,6 +24,9 @@ public class ToDoItem {
 
     @com.google.gson.annotations.SerializedName("count")
     private int count;
+
+    public Sample() {
+    }
 
     public long getStartTime() {
         return startTime;
@@ -70,11 +60,28 @@ public class ToDoItem {
         this.count = count;
     }
 
-    /**
-     * ToDoItem constructor
-     */
-    public ToDoItem() {
+    public String getText() {
+        return mText;
+    }
 
+    public final void setText(String text) {
+        mText = text;
+    }
+
+    public String getId() {
+        return mId;
+    }
+
+    public final void setId(String id) {
+        mId = id;
+    }
+
+    public boolean isComplete() {
+        return mComplete;
+    }
+
+    public void setComplete(boolean complete) {
+        mComplete = complete;
     }
 
     @Override
@@ -82,65 +89,8 @@ public class ToDoItem {
         return getText();
     }
 
-    /**
-     * Initializes a new ToDoItem
-     *
-     * @param text The item text
-     * @param id   The item id
-     */
-    public ToDoItem(String text, String id) {
-        this.setText(text);
-        this.setId(id);
-    }
-
-    /**
-     * Returns the item text
-     */
-    public String getText() {
-        return mText;
-    }
-
-    /**
-     * Sets the item text
-     *
-     * @param text text to set
-     */
-    public final void setText(String text) {
-        mText = text;
-    }
-
-    /**
-     * Returns the item id
-     */
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * Sets the item id
-     *
-     * @param id id to set
-     */
-    public final void setId(String id) {
-        mId = id;
-    }
-
-    /**
-     * Indicates if the item is marked as completed
-     */
-    public boolean isComplete() {
-        return mComplete;
-    }
-
-    /**
-     * Marks the item as completed or incompleted
-     */
-    public void setComplete(boolean complete) {
-        mComplete = complete;
-    }
-
     @Override
     public boolean equals(Object o) {
-        return o instanceof ToDoItem && ((ToDoItem) o).mId == mId;
+        return o instanceof Sample && ((Sample) o).mId == mId;
     }
 }
