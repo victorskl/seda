@@ -23,14 +23,9 @@ import seda.baseapp.BluetoothWorker.BluetoothServerHandlingThread;
 import seda.baseapp.adapter.NavigationItemAdapter;
 import seda.baseapp.fragment.AboutUsFragment;
 import seda.baseapp.fragment.DriverProfileFragment;
-import seda.baseapp.fragment.ProfileFragment;
 import seda.baseapp.fragment.SedaStatusFragment;
 import seda.baseapp.model.SampleDao;
 import seda.baseapp.fragment.PublicProfileFragment;
-
-//import android.app.Fragment;
-//import android.app.FragmentManager;
-//import android.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -181,6 +176,8 @@ public class MainActivity extends AppCompatActivity {
 //        serverThread = new BluetoothServerHandlingThread(bluetoothAdapter, this);
 //        serverThread.start();
     }
+
+
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override

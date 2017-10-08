@@ -22,7 +22,8 @@ namespace SedaBackendService.Models
         {
         } 
 
-        public DbSet<TodoItem> TodoItems { get; set; }
+        public DbSet<Sample> Samples { get; set; }
+
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

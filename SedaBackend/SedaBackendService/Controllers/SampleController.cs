@@ -9,42 +9,42 @@ using SedaBackendService.Models;
 
 namespace SedaBackendService.Controllers
 {
-    public class TodoItemController : TableController<TodoItem>
+    public class SampleController : TableController<Sample>
     {
         protected override void Initialize(HttpControllerContext controllerContext)
         {
             base.Initialize(controllerContext);
             SedaBackendContext context = new SedaBackendContext();
-            DomainManager = new EntityDomainManager<TodoItem>(context, Request);
+            DomainManager = new EntityDomainManager<Sample>(context, Request);
         }
 
-        // GET tables/TodoItem
-        public IQueryable<TodoItem> GetAllTodoItems()
+        // GET tables/Sample
+        public IQueryable<Sample> GetAllSamples()
         {
             return Query();
         }
 
-        // GET tables/TodoItem/48D68C86-6EA6-4C25-AA33-223FC9A27959
-        public SingleResult<TodoItem> GetTodoItem(string id)
+        // GET tables/Sample/48D68C86-6EA6-4C25-AA33-223FC9A27959
+        public SingleResult<Sample> GetSample(string id)
         {
             return Lookup(id);
         }
 
-        // PATCH tables/TodoItem/48D68C86-6EA6-4C25-AA33-223FC9A27959
-        public Task<TodoItem> PatchTodoItem(string id, Delta<TodoItem> patch)
+        // PATCH tables/Sample/48D68C86-6EA6-4C25-AA33-223FC9A27959
+        public Task<Sample> PatchSample(string id, Delta<Sample> patch)
         {
             return UpdateAsync(id, patch);
         }
 
-        // POST tables/TodoItem
-        public async Task<IHttpActionResult> PostTodoItem(TodoItem item)
+        // POST tables/Sample
+        public async Task<IHttpActionResult> PostSample(Sample item)
         {
-            TodoItem current = await InsertAsync(item);
+            Sample current = await InsertAsync(item);
             return CreatedAtRoute("Tables", new { id = current.Id }, current);
         }
 
-        // DELETE tables/TodoItem/48D68C86-6EA6-4C25-AA33-223FC9A27959
-        public Task DeleteTodoItem(string id)
+        // DELETE tables/Sample/48D68C86-6EA6-4C25-AA33-223FC9A27959
+        public Task DeleteSample(string id)
         {
             return DeleteAsync(id);
         }

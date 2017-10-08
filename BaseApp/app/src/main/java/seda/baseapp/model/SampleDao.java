@@ -11,22 +11,17 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import seda.baseapp.todo.ToDoItem;
-
 import static com.microsoft.windowsazure.mobileservices.table.query.QueryOperations.val;
 
 public class SampleDao {
 
-    private static final String ENDPOINT_URL = "https://victortodo.azurewebsites.net";
+    private static final String ENDPOINT_URL = "http://sedabackend.azurewebsites.net";
     public MobileServiceClient mClient;
-    private MobileServiceTable<ToDoItem> mToDoTable;
-
+    private MobileServiceTable<Sample> mSampleTable;
 
     public SampleDao(Context activity) {
         try {
-            // Create the Mobile Service Client instance, using the provided
 
-            // Mobile Service URL and key
             mClient = new MobileServiceClient(ENDPOINT_URL, activity);
 
             // Extend timeout from default of 10s to 20s
@@ -40,30 +35,24 @@ public class SampleDao {
                 }
             });
 
-            // Get the Mobile Service Table instance to use
-
-            mToDoTable = mClient.getTable(ToDoItem.class);
+            mSampleTable = mClient.getTable(Sample.class);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void checkItemInTable(ToDoItem item) throws ExecutionException, InterruptedException
-    {
-        mToDoTable.update(item).get();
+    public void checkItemInTable(Sample item) throws ExecutionException, InterruptedException {
+        mSampleTable.update(item).get();
     }
 
-    public ToDoItem addItemInTable(ToDoItem item) throws ExecutionException, InterruptedException
-    {
-        ToDoItem entity = mToDoTable.insert(item).get();
+    public Sample addItemInTable(Sample item) throws ExecutionException, InterruptedException {
+        Sample entity = mSampleTable.insert(item).get();
         return entity;
     }
 
-    private List<ToDoItem> refreshItemsFromMobileServiceTable() throws ExecutionException, InterruptedException {
-        return mToDoTable.where().field("complete").
+    private List<Sample> refreshItemsFromMobileServiceTable() throws ExecutionException, InterruptedException {
+        return mSampleTable.where().field("complete").
                 eq(val(false)).execute().get();
     }
-
-
 }
