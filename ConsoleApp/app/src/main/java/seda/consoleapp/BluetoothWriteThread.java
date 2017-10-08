@@ -1,5 +1,6 @@
 package seda.consoleapp;
 
+import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -17,15 +18,15 @@ public class BluetoothWriteThread extends Thread {
     private static final String TAG = "BluetoothWriteThread";
 
     private LinkedBlockingDeque<String> sendQueue = new LinkedBlockingDeque();
-    private AppCompatActivity activity;
+    private Activity activity;
     private BufferedWriter out;
 
-    BluetoothWriteThread(AppCompatActivity activity, BufferedWriter out) {
+    BluetoothWriteThread(Activity activity, BufferedWriter out) {
         this.activity = activity;
         this.out = out;
 
 //        test send to server
-//        addSendMessageToQueue("Hello From Client");
+        addSendMessageToQueue("Hello From Client");
 
     }
 

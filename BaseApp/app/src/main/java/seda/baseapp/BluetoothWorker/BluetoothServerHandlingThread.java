@@ -25,6 +25,8 @@ import java.util.concurrent.Future;
 
 public class BluetoothServerHandlingThread extends Thread
 {
+//    since bluetooth does not allow forever discoverable, so this server will remind robust
+//    for accepting client's connection as along as it is discoverable
 
     private  static final String TAG = "BluetoothServerHandling";
     private  String name = "server1";
@@ -49,8 +51,10 @@ public class BluetoothServerHandlingThread extends Thread
 
     private BluetoothSocket clientSocket = null;
 
+    private boolean isInOutThreadAlive = true;
 
-    BluetoothServerHandlingThread(BluetoothAdapter bluetoothAdapter, AppCompatActivity activity)
+
+    public BluetoothServerHandlingThread(BluetoothAdapter bluetoothAdapter, AppCompatActivity activity)
     {
         this.bluetoothAdapter = bluetoothAdapter;
         this.activity = activity;
@@ -76,11 +80,14 @@ public class BluetoothServerHandlingThread extends Thread
             try
             {
                 Log.wtf(TAG, "Accepting client");
-
                 clientSocket = mmServerSocket.accept();
+                isInOutThreadAlive = true;
+                Log.wtf(TAG, "Accepted one client");
+
             }
             catch (IOException e)
             {
+
                 Log.wtf(TAG, "Socket's accept() method failed", e);
                 break;
             }
@@ -113,22 +120,24 @@ public class BluetoothServerHandlingThread extends Thread
 
                 taskFutures.add(f);
 
-                while (true)
+                while (isInOutThreadAlive)
                 {
+                    Log.wtf(TAG, "Checking client alive");
                     for (Future<?> future : taskFutures)
                     {
                         if (future.isDone() || future.isCancelled())
                         {
-                            Log.d(TAG, "Future done ~= Either read or write runnable failed, start new server");
-
+                            Log.wtf(TAG, "Future done ~= Either read or write runnable failed, start new server");
                             try
                             {
                                 cleanUp();
                                 mmServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(name, resultUUID);
+                                isInOutThreadAlive = false;
+                                break;
 
                             } catch (IOException e)
                             {
-                                Log.d(TAG, "Fail to clean up");
+                                Log.wtf(TAG, "Fail to clean up");
                                 e.printStackTrace();
                             }
 
@@ -137,10 +146,10 @@ public class BluetoothServerHandlingThread extends Thread
                     }
                     try
                     {
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                     } catch (Exception e)
                     {
-                        Log.d(TAG, "Server handling thread sleep failed");
+                        Log.wtf(TAG, "Server handling thread sleep failed");
                     }
                 }
 
