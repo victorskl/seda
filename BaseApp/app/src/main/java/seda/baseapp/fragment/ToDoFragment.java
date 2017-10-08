@@ -1,10 +1,6 @@
 package seda.baseapp.fragment;
 
 import android.app.AlertDialog;
-//import android.app.Fragment;
-
-
-
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,10 +24,8 @@ import com.microsoft.windowsazure.mobileservices.http.OkHttpClientFactory;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilter;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequest;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
-import com.microsoft.windowsazure.mobileservices.table.query.Query;
-import com.microsoft.windowsazure.mobileservices.table.query.QueryOperations;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncContext;
-import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncTable;
 import com.microsoft.windowsazure.mobileservices.table.sync.localstore.ColumnDataType;
 import com.microsoft.windowsazure.mobileservices.table.sync.localstore.MobileServiceLocalStoreException;
 import com.microsoft.windowsazure.mobileservices.table.sync.localstore.SQLiteLocalStore;
@@ -51,6 +45,8 @@ import seda.baseapp.todo.ToDoItem;
 
 import static com.microsoft.windowsazure.mobileservices.table.query.QueryOperations.val;
 
+//import android.app.Fragment;
+
 /**
  * Created by liubingfeng on 23/09/2017.
  */
@@ -60,8 +56,8 @@ public class ToDoFragment extends Fragment
 {
 
 
-    //    private static final String ENDPOINT_URL = "https://victortodo.azurewebsites.net";
-    private static final String ENDPOINT_URL = "https://bingfengappservice.azurewebsites.net";
+    private static final String ENDPOINT_URL = "https://victortodo.azurewebsites.net";
+    //private static final String ENDPOINT_URL = "https://bingfengappservice.azurewebsites.net";
 
 //    private Activity mainActivity = null;
 
@@ -73,13 +69,13 @@ public class ToDoFragment extends Fragment
     /**
      * Mobile Service Table used to access data
      */
-//    private MobileServiceTable<ToDoItem> mToDoTable;
+    private MobileServiceTable<ToDoItem> mToDoTable;
 
     //Offline Sync
     /**
      * Mobile Service Table used to access and Sync data
      */
-    private MobileServiceSyncTable<ToDoItem> mToDoTable;
+//    private MobileServiceSyncTable<ToDoItem> mToDoTable;
 
     /**
      * Adapter to sync the items list with the view
@@ -161,10 +157,10 @@ public class ToDoFragment extends Fragment
 
             // Get the Mobile Service Table instance to use
 
-//            mToDoTable = mClient.getTable(ToDoItem.class);
+            mToDoTable = mClient.getTable(ToDoItem.class);
 
 //             Offline Sync
-            mToDoTable = mClient.getSyncTable("ToDoItem", ToDoItem.class);
+//            mToDoTable = mClient.getSyncTable("ToDoItem", ToDoItem.class);
 
             //Init local storage
             initLocalStore().get();
@@ -299,6 +295,8 @@ public class ToDoFragment extends Fragment
         item.setText(mTextNewToDo.getText().toString());
         item.setComplete(false);
 
+        item.setCount(1111);
+
         // Insert the new item
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
             @Override
@@ -357,10 +355,10 @@ public class ToDoFragment extends Fragment
             protected Void doInBackground(Void... params) {
 
                 try {
-//                    final List<ToDoItem> results = refreshItemsFromMobileServiceTable();
+                    final List<ToDoItem> results = refreshItemsFromMobileServiceTable();
 
                     //Offline Sync
-                    final List<ToDoItem> results = refreshItemsFromMobileServiceTableSyncTable();
+//                    final List<ToDoItem> results = refreshItemsFromMobileServiceTableSyncTable();
 
                     getActivity().runOnUiThread(new Runnable()
                     {
@@ -391,23 +389,23 @@ public class ToDoFragment extends Fragment
      * Refresh the list with the items in the Mobile Service Table
      */
 
-//    private List<ToDoItem> refreshItemsFromMobileServiceTable() throws ExecutionException, InterruptedException {
-//        return mToDoTable.where().field("complete").
-//                eq(val(false)).execute().get();
-//    }
+    private List<ToDoItem> refreshItemsFromMobileServiceTable() throws ExecutionException, InterruptedException {
+        return mToDoTable.where().field("complete").
+                eq(val(false)).execute().get();
+    }
 
     //Offline Sync
     /**
      * Refresh the list with the items in the Mobile Service Sync Table
      */
-    private List<ToDoItem> refreshItemsFromMobileServiceTableSyncTable() throws ExecutionException, InterruptedException
-    {
-        //sync the data
-        sync().get();
-        Query query = QueryOperations.field("complete").
-                eq(val(false));
-        return mToDoTable.read(query).get();
-    }
+//    private List<ToDoItem> refreshItemsFromMobileServiceTableSyncTable() throws ExecutionException, InterruptedException
+//    {
+//        //sync the data
+//        sync().get();
+//        Query query = QueryOperations.field("complete").
+//                eq(val(false));
+//        return mToDoTable.read(query).get();
+//    }
 
     /**
      * Initialize local storage
@@ -459,22 +457,22 @@ public class ToDoFragment extends Fragment
      * @return
      */
 
-    private AsyncTask<Void, Void, Void> sync() {
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-            @Override
-            protected Void doInBackground(Void... params) {
-                try {
-                    MobileServiceSyncContext syncContext = mClient.getSyncContext();
-                    syncContext.push().get();
-                    mToDoTable.pull(null).get();
-                } catch (final Exception e) {
-                    createAndShowDialogFromTask(e, "Error");
-                }
-                return null;
-            }
-        };
-        return runAsyncTask(task);
-    }
+//    private AsyncTask<Void, Void, Void> sync() {
+//        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+//            @Override
+//            protected Void doInBackground(Void... params) {
+//                try {
+//                    MobileServiceSyncContext syncContext = mClient.getSyncContext();
+//                    syncContext.push().get();
+//                    mToDoTable.pull(null).get();
+//                } catch (final Exception e) {
+//                    createAndShowDialogFromTask(e, "Error");
+//                }
+//                return null;
+//            }
+//        };
+//        return runAsyncTask(task);
+//    }
 
 
     /**

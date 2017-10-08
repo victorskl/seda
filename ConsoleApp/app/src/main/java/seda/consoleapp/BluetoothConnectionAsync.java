@@ -52,6 +52,7 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void> {
             // MY_UUID is the app's UUID string, also used in the server code.
             mmSocket = device.createRfcommSocketToServiceRecord(resultUUID);
             mmSocket.connect();
+
             out = new BufferedWriter(new OutputStreamWriter(mmSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(mmSocket.getInputStream()));
             readThread = new BluetoothReadThread(activity, in);

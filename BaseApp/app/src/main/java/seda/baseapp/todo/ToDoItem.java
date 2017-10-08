@@ -23,6 +23,53 @@ public class ToDoItem {
     @com.google.gson.annotations.SerializedName("complete")
     private boolean mComplete;
 
+
+    // our sample
+
+    @com.google.gson.annotations.SerializedName("startTime")
+    private long startTime;
+
+    @com.google.gson.annotations.SerializedName("endTime")
+    private long endTime;
+
+    @com.google.gson.annotations.SerializedName("sampleType")
+    private int sampleType;
+
+    @com.google.gson.annotations.SerializedName("count")
+    private int count;
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
+    public int getSampleType() {
+        return sampleType;
+    }
+
+    public void setSampleType(int sampleType) {
+        this.sampleType = sampleType;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
     /**
      * ToDoItem constructor
      */

@@ -25,7 +25,7 @@ public class BluetoothWriteThread extends Thread {
         this.out = out;
 
 //        test send to server
-        addSendMessageToQueue("Hello From Client");
+//        addSendMessageToQueue("Hello From Client");
 
     }
 

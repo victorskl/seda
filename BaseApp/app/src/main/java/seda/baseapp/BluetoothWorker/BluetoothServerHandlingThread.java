@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -18,6 +17,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import seda.baseapp.model.SampleDao;
 
 /**
  * Created by liubingfeng on 8/10/2017.
@@ -53,9 +54,12 @@ public class BluetoothServerHandlingThread extends Thread
 
     private boolean isInOutThreadAlive = true;
 
+    private SampleDao sampleDao;
 
-    public BluetoothServerHandlingThread(BluetoothAdapter bluetoothAdapter, AppCompatActivity activity)
+
+    public BluetoothServerHandlingThread(BluetoothAdapter bluetoothAdapter, AppCompatActivity activity, SampleDao sampleDao)
     {
+        this.sampleDao = sampleDao;
         this.bluetoothAdapter = bluetoothAdapter;
         this.activity = activity;
 
@@ -107,7 +111,7 @@ public class BluetoothServerHandlingThread extends Thread
                 {
                     e.printStackTrace();
                 }
-                curReadRunnable = new BluetoothReadRunnable(in, activity);
+                curReadRunnable = new BluetoothReadRunnable(in, activity, sampleDao);
                 curWriteRunnable = new BluetoothWriteRunnable(out, activity);
 
 //                  Inspired from: https://stackoverflow.com/questions/33845405/how-to-check-if-all-tasks-running-on-executorservice-are-completed

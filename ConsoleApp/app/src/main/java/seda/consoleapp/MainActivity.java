@@ -191,13 +191,22 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
-//        if (!bluetoothAdapter.isEnabled()) {
+        if (!bluetoothAdapter.isEnabled()) {
         Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 //            need this to discover other device, simply sending intent does not mean it is ready
 //        int turnOnBluetoothRequestCode = 1;
 //        startActivityForResult(turnOn, turnOnBluetoothRequestCode);
             startActivityForResult(turnOn, REQUEST_ENABLE_BT);
-//        }
+        }
+        else
+        {
+            if (bluetoothAdapter.isDiscovering()) {
+                bluetoothAdapter.cancelDiscovery();
+            }
+
+            Toast.makeText(getApplicationContext(), "start discovering", Toast.LENGTH_LONG).show();
+            bluetoothAdapter.startDiscovery();
+        }
 
         //TODO to discuss with Bing;
         // if ConsoleApp is BT client, we can let user

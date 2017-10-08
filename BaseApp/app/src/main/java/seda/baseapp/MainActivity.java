@@ -1,44 +1,23 @@
 package seda.baseapp;
 
 import android.Manifest;
-//import android.app.Fragment;
-//import android.app.FragmentManager;
-//import android.app.FragmentTransaction;
-
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-
 import android.support.v4.app.ActivityCompat;
-
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.UUID;
 
 import seda.baseapp.BluetoothWorker.BluetoothServerHandlingThread;
 import seda.baseapp.adapter.NavigationItemAdapter;
@@ -46,6 +25,11 @@ import seda.baseapp.fragment.AboutUsFragment;
 import seda.baseapp.fragment.DriverProfileFragment;
 import seda.baseapp.fragment.SedaStatusFragment;
 import seda.baseapp.fragment.ToDoFragment;
+import seda.baseapp.model.SampleDao;
+
+//import android.app.Fragment;
+//import android.app.FragmentManager;
+//import android.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
 //  discoverableDuration is in seconds
     private int discoverableDuration = 1000;
 
+    private SampleDao sampleDao;
+
 
     // Create a BroadcastReceiver for ACTION_FOUND.
 //    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -120,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sampleDao = new SampleDao(this);
 
         navigationItemsNames = getResources().getStringArray(R.array.navigation_bar_item_names);
 
@@ -299,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
             {
 
 
-                serverThread = new BluetoothServerHandlingThread(bluetoothAdapter, this);
+                serverThread = new BluetoothServerHandlingThread(bluetoothAdapter, this, sampleDao);
                 serverThread.start();
 
 //                if (bluetoothAdapter.isDiscovering()) {
