@@ -25,6 +25,7 @@ import seda.baseapp.fragment.AboutUsFragment;
 import seda.baseapp.fragment.DriverProfileFragment;
 import seda.baseapp.fragment.SedaStatusFragment;
 import seda.baseapp.model.SampleDao;
+import seda.baseapp.fragment.PublicProfileFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -220,6 +221,14 @@ public class MainActivity extends AppCompatActivity {
         {
 
             SedaStatusFragment fragment = new SedaStatusFragment();
+
+            toggleFragment(fragmentManager, fragment, itemTagName, position);
+
+        }
+        else if (itemTagName.equals(getString(R.string.public_profile)) && !itemTagName.equals(curFragmentName))
+        {
+
+            PublicProfileFragment fragment = new PublicProfileFragment();
 
             toggleFragment(fragmentManager, fragment, itemTagName, position);
 

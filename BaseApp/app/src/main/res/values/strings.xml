@@ -14,14 +14,30 @@
     <string name="about_us">AboutUs</string>
     <string name="driver_profile">DriverProfile</string>
     <string name="seda_status">SEDAstatus</string>
+    <string name="public_profile">PublicProfile</string>
 
     <string-array name="navigation_bar_item_names">
         <!--<item>@string/to_do_item</item>-->
         <item>@string/about_us</item>
         <item>@string/driver_profile</item>
+        <item>@string/public_profile</item>
+
         <!--<item>@string/seda_status</item>-->
     </string-array>
 
+    //public profile
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="imgdesc">imgdesc</string>
+
+    <string-array name="list_items">
+        <item>iPhone 6__845$</item>
+        <item>iPad Air__800$</item>
+        <item>iPad Mini 2__500$</item>
+        <item>Galaxy Note 4__740$</item>
+        <item>Galaxy Alpha__599$</item>
+        <item>Galaxy Golden__950$</item>
+    </string-array>
 
 
 </resources>

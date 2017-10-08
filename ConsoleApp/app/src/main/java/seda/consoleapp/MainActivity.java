@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Set;
 
 import static org.opencv.core.Core.FONT_HERSHEY_TRIPLEX;
 
@@ -143,7 +144,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //              found server device, start connecting to server, assume once found server is already up
                 if (deviceName != null && deviceName.equalsIgnoreCase(bluetoothServerDeviceName)) {
                     Log.d(TAG, "start bluetooth connection");
-                    startBluetoothConnection = new BluetoothConnectionAsync((Activity) context, bluetoothAdapter, bluetoothDeviceHashMap.get(bluetoothServerDeviceName));
+
+                    startBluetoothConnection = new BluetoothConnectionAsync((Activity) context,
+                            bluetoothAdapter, bluetoothDeviceHashMap.get(bluetoothServerDeviceName));
+
                     startBluetoothConnection.execute();
 
                 }
@@ -196,9 +200,53 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 //        int turnOnBluetoothRequestCode = 1;
 //        startActivityForResult(turnOn, turnOnBluetoothRequestCode);
             startActivityForResult(turnOn, REQUEST_ENABLE_BT);
+        } else {
+            performBluetoothPairedOrDiscover();
         }
-        else
-        {
+
+        // Register for broadcasts when a device is discovered.
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(mReceiver, filter);
+    }
+
+    private BluetoothDevice findPairedDevice() {
+        BluetoothDevice bluetoothDevice = null;
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            // There are paired devices. Get the name and address of each paired device.
+
+            for (BluetoothDevice device : pairedDevices) {
+                final String deviceName = device.getName();
+                String deviceHardwareAddress = device.getAddress(); // MAC address
+                if (deviceName.equalsIgnoreCase(bluetoothServerDeviceName)) {
+                    bluetoothDevice = device;
+                }
+            }
+        }
+        return bluetoothDevice;
+    }
+
+    private void performBluetoothPairedOrDiscover() {
+        final BluetoothDevice bluetoothDevice = findPairedDevice();
+        if (bluetoothDevice != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "Found Paired -> "
+                            + bluetoothDevice.getName(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+            Log.wtf(TAG, " deviceName " + bluetoothDevice.getName());
+            bluetoothDeviceHashMap.put(bluetoothDevice.getName(), bluetoothDevice);
+
+            startBluetoothConnection = new BluetoothConnectionAsync(this,
+                    bluetoothAdapter, bluetoothDeviceHashMap.get(bluetoothServerDeviceName));
+            startBluetoothConnection.execute();
+        }
+
+        else {
+
             if (bluetoothAdapter.isDiscovering()) {
                 bluetoothAdapter.cancelDiscovery();
             }
@@ -206,20 +254,35 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
             Toast.makeText(getApplicationContext(), "start discovering", Toast.LENGTH_LONG).show();
             bluetoothAdapter.startDiscovery();
         }
+    }
 
-        //TODO to discuss with Bing;
-        // if ConsoleApp is BT client, we can let user
-        // turn on discoverable. check the Android BT doc
-//         make this device discoverable in 300s
-//        Intent discoverableIntent =
-//                new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-//        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-//        startActivity(discoverableIntent);
-//        startActivityForResult(discoverableIntent, 1);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // means request bluetooth successfully
 
-        // Register for broadcasts when a device is discovered.
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mReceiver, filter);
+//        if (requestCode == 0) {
+//            if (resultCode == RESULT_OK) {
+//                Log.wtf(TAG, "request bluetooth successfully");
+//            } else {
+//                Log.wtf(TAG, "request bluetooth failed");
+//            }
+//        }
+
+        if (requestCode == REQUEST_ENABLE_BT) {
+
+
+            //if dicoverable failed it will return cancel
+            //seemed that you need to make sure bluetooth is opened then start discoverying other devices
+            //otherwise, the dicovery process wont start.
+            if (resultCode == RESULT_OK) {
+
+                performBluetoothPairedOrDiscover();
+
+                Log.wtf(TAG, "dic request bluetooth successfully -> result code -> " + resultCode);
+            } else {
+                Log.wtf(TAG, "dic request bluetooth failed -> result code -> " + requestCode);
+            }
+        }
     }
 
 
@@ -272,8 +335,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
         mIntermediateMat = new Mat(height, width, CvType.CV_8UC4);
         mGray = new Mat(height, width, CvType.CV_8UC1);
-
-
     }
 
     public void onCameraViewStopped() {
@@ -556,39 +617,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     }
 
 
-    //    All the request of requsting system will come to this callback
-    //    listen for registered message
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // means request bluetooth successfully
-
-//        if (requestCode == 0) {
-//            if (resultCode == RESULT_OK) {
-//                Log.wtf(TAG, "request bluetooth successfully");
-//            } else {
-//                Log.wtf(TAG, "request bluetooth failed");
-//            }
-//        }
-
-        if (requestCode == REQUEST_ENABLE_BT) {
-
-            //if dicoverable failed it will return cancel
-            //seemed that you need to make sure bluetooth is opened then start discoverying other devices
-            //otherwise, the dicovery process wont start.
-            if (resultCode == RESULT_OK) {
-                if (bluetoothAdapter.isDiscovering()) {
-                    bluetoothAdapter.cancelDiscovery();
-                }
-
-                Toast.makeText(getApplicationContext(), "start discovering", Toast.LENGTH_LONG).show();
-                bluetoothAdapter.startDiscovery();
-                Log.wtf(TAG, "dic request bluetooth successfully -> result code -> " + resultCode);
-            } else {
-                Log.wtf(TAG, "dic request bluetooth failed -> result code -> " + requestCode);
-            }
-        }
-    }
-
 //  This playing audio code is inspired from
 //
 // https://stackoverflow.com/questions/7291731/how-to-play-audio-file-in-android
@@ -596,14 +624,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
     public void playCarCloseAudio() {
         //set up MediaPlayer
         MediaPlayer mp;
-
         try {
-
             mp = MediaPlayer.create(getApplicationContext(), R.raw.close_car);
             mp.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

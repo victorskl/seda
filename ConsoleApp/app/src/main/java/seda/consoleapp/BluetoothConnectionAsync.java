@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -67,7 +68,18 @@ public class BluetoothConnectionAsync extends AsyncTask<Void, Void, Void> {
     }
 
     public void sendData(String sendString) {
-        sendThread.addSendMessageToQueue(sendString);
+        try {
+            sendThread.addSendMessageToQueue(sendString);
+        } catch (Exception e) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(activity, "Sending data to BaseApp failed! Seem a Paired Bluetooth Server is down."
+                            , Toast.LENGTH_LONG).show();
+                }
+            });
 
+            Log.wtf(TAG, "sendData: Sending data to BaseApp failed! Seem a Paired Bluetooth Server is down.", e);
+        }
     }
 }
