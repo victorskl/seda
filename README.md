@@ -1,6 +1,9 @@
+[![DOI](https://zenodo.org/badge/104306253.svg)](https://zenodo.org/badge/latestdoi/104306253)
+
+
 # S.E.D.A
 
-SEDA stands for Smart Elegant Driving Assistant. It is a prototype implementation of our design fiction [seda-paper](https://github.com/victorskl/seda-paper). As with prototype, we mimic two mobile phones - one of which act as the [BaseApp](BaseApp) and another is the [ConsoleApp](ConsoleApp). The ConsoleApp makes use of the advanced image processing library OpenCV for Car detection and Lane Departure detection using mono-camera machine visionary. Furthermore, the two Apps make use of Bluetooth for ad-hoc networking for data communication. Then, the BaseApp use mobile data connection to communicate with [SedaBackend](SedaBackend) that run on Azure Cloud for further analysis processing such as driver behaviour classification based on aggregated sensor data samples (throw your Machine Learning techniques @here).
+SEDA stands for Smart Elegant Driving Assistant. It is a prototype implementation of our design fiction https://github.com/victorskl/seda-paper. As with prototype, we mimic two mobile phones - one of which act as the [BaseApp](BaseApp) and another is the [ConsoleApp](ConsoleApp). The ConsoleApp makes use of the advanced image processing library OpenCV for Car detection and Lane Departure detection using mono-camera machine visionary. Furthermore, the two Apps make use of Bluetooth for ad-hoc networking for data communication. Then, the BaseApp use mobile data connection to communicate with [SedaBackend](SedaBackend) that run on Azure Cloud for further analysis processing such as driver behaviour classification based on aggregated sensor data samples (throw your Machine Learning techniques @here).
 
 ## Demo
 
@@ -21,11 +24,11 @@ There still have room to improvement on this Research and Development work. You 
 
 LaTeX/BibTeX:
 ```
-@online{seda,
+@online{sedapaper,
     author    = {San Kho Lin, Bingfeng Liu, Yixin Chen},
-    title     = {S.E.D.A - Smart Elegant Driving Assistant Prototype},
+    title     = {S.E.D.A - Smart Elegant Driving Assistant},
     year      = {2017},
-    url       = {https://github.com/victorskl/seda},
+    url       = {https://github.com/victorskl/seda-paper/releases/tag/v201709},
     urldate   = {yyyy-mm-dd}
 }
 ```

@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+authors:
+- family-names: "Lin"
+  given-names: "Victor San Kho"
+  orcid: "https://orcid.org/0000-0002-3940-4729"
+- family-names: "Liu"
+  given-names: "Bingfeng"
+- family-names: "Yixin"
+  given-names: "Chen"
+title: "S.E.D.A - Smart Elegant Driving Assistant"
+version: v201709
+doi: 10.5281/zenodo.7262970
+date-released: 2022-10-29
+url: "https://github.com/victorskl/seda-paper"
